@@ -1,9 +1,9 @@
 # Computer Graphics 203.3710
 ## Students Team data
 
-Name: 
+Name: Aya Mahagna 
 
-Student Number: 
+Student Number: 314774639
 
 
 Name: 

@@ -6,9 +6,9 @@ Name: Aya Mahagna
 Student Number: 314774639
 
 
-Name: 
+Name: Rima Hleihil  
 
-Student Number: 
+Student Number: 203333539
 
 ### Lecturer
 *Roi Poranne*

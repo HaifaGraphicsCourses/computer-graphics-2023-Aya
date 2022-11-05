@@ -2,12 +2,9 @@
 ## Students Team data
 
 Name: Aya Mahagna 
-
 Student Number: 314774639
 
-
 Name: Rima Hleihil  
-
 Student Number: 203333539
 
 ### Lecturer

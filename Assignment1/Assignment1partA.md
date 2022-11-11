@@ -436,4 +436,39 @@ void Renderer::Render(const Scene& scene)
 ![image](https://user-images.githubusercontent.com/83645233/201371508-7735b434-1bb7-478c-bcca-a272e0bc745b.png)
 ![image](https://user-images.githubusercontent.com/83645233/201439423-cde5e9c8-ed97-4c7e-aae0-1be48a233d4b.png)
 
-
+<a name="circle-drawing"></a>
+## Circle drawing
+### Draw circle function
+```c++
+void Renderer::DrawCircle(const glm::ivec2& p1, double r, const glm::vec3& color)
+{
+	for (int i = p1.x - r; i <= p1.x + r; i++) {
+		PutPixel(i, sqrt(r * r - (i - p1.x) * (i - p1.x)) + p1.y, color);
+		PutPixel(i, (sqrt(r * r - (i - p1.x) * (i - p1.x)) + p1.y) - 2 * ((sqrt(r * r - (i - p1.x) * (i - p1.x)) + p1.y) - p1.y), color);
+	}
+	for (int i = p1.y - r; i <= p1.y + r; i++) {
+		PutPixel(sqrt(r * r - (i - p1.y) * (i - p1.y)) + p1.x, i, color);
+		PutPixel((sqrt(r * r - (i - p1.y) * (i - p1.y)) + p1.x) - 2 * ((sqrt(r * r - (i - p1.y) * (i - p1.y)) + p1.x) - p1.x), i, color);
+	}
+}
+```
+<a name="sanity-check-2-result"></a>
+## Sanity check 2 result
+### Rendering the circles
+```c++
+void Renderer::Render(const Scene& scene)
+{
+	// TODO: Replace this code with real scene rendering code
+	int half_width = viewport_width / 2;
+	int half_height = viewport_height / 2;
+	// Drawing the 2 circles
+	glm::ivec2 p1(100, 170);
+	glm::ivec2 p2(160, 190);
+	glm::vec3 color1(0, 1, 200);
+	glm::vec3 color2(1, 0, 3);
+	DrawCircle(p1, 110, color1);
+	DrawCircle(p2, 80, color2);
+}
+```
+### Picture of the result
+![image](https://user-images.githubusercontent.com/83645233/201440618-cf8dd061-02d3-4081-82e1-fa6f5537c792.png)

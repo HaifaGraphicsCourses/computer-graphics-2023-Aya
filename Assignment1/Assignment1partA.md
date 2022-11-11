@@ -433,7 +433,6 @@ void Renderer::Render(const Scene& scene)
 }
 ```
 ### Picture of the result
-![image](https://user-images.githubusercontent.com/83645233/201371508-7735b434-1bb7-478c-bcca-a272e0bc745b.png)
 ![image](https://user-images.githubusercontent.com/83645233/201439423-cde5e9c8-ed97-4c7e-aae0-1be48a233d4b.png)
 
 <a name="circle-drawing"></a>

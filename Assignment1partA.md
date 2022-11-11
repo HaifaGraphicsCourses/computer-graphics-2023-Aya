@@ -42,3 +42,23 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 		}
 	}
 }
+```
+### Rendering the lines
+
+```c++
+void Renderer::Render(const Scene& scene)
+{
+	// TODO: Replace this code with real scene rendering code
+	int half_width = viewport_width / 2;
+	int half_height = viewport_height / 2;
+	// Drawing line - sanity check 
+	int x0 = half_width,y0 = half_height, x1, y1, r = 500,a = 60;
+	for (int i = 0; i < a; i++) {
+		x1 = x0 + r * sin((2 * M_PI * i) / a);
+		y1 = y0 + r * cos((2 * M_PI * i) / a);
+		DrawLine(glm::ivec2(x0, y0), glm::ivec2(x1, y1), glm::vec3(1, 0, 2));
+	}
+}
+```
+### Picture of the results
+![image](https://user-images.githubusercontent.com/83645233/201371508-7735b434-1bb7-478c-bcca-a272e0bc745b.png)

@@ -58,25 +58,22 @@ void Renderer::Render(const Scene& scene)
 	glm::ivec2 p6(250, 450);
 	glm::ivec2 p7(450, 250);
 	glm::ivec2 p8(350, 100);
-	glm::ivec2 p9(250, 100);
 	glm::vec3 color1(0, 120, 0);
 	glm::vec3 color2(2, 0, 0);
 	glm::vec3 color3(2, 0.8, 0.243);
 	glm::vec3 color4(0.21, 0.78, 0.12);
 	glm::vec3 color5(0.9, 0.52, 10);
 	glm::vec3 color6(0.8, 0.1, 0.578);
-	glm::vec3 color7(255, 255, 255);
 	DrawLine(p1, p2, color1);
 	DrawLine(p1, p3, color2);
 	DrawLine(p1, p4, color3);
 	DrawLine(p1, p6, color4);
 	DrawLine(p1, p7, color5);
 	DrawLine(p1, p8, color6);
-	DrawLine(p1, p9, color7);
  }
  ```
  ### Picture of the result
-![image](https://user-images.githubusercontent.com/83645233/201374067-51d49a7f-f20f-4c56-b376-8922fc7b48c1.png)
+ ![image](https://user-images.githubusercontent.com/83645233/201435962-3c91ef40-2663-4428-a804-e62440441b3f.png)
 <a name="sanity-check-1-result"></a>
 ## Sanity check 1 result
 

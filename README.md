@@ -5,9 +5,9 @@
 
 **Student Number: 314774639**
 
-Name: Rima Hleihil  - Only on assignment 1 part A
+**Name: Rima Hleihil**  - Only on assignment 1 part A
 
-Student Number: 203333539
+**Student Number: 203333539**
 
 ### Lecturer
 *Roi Poranne*

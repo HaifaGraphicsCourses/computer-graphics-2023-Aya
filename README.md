@@ -1,9 +1,9 @@
 # Computer Graphics 203.3710
 ## Students Team data
 
-Name: Aya Mahagna 
+**Name: Aya Mahagna** 
 
-Student Number: 314774639
+**Student Number: 314774639**
 
 Name: Rima Hleihil  - Only on assignment 1 part A
 

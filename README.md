@@ -5,7 +5,7 @@ Name: Aya Mahagna
 
 Student Number: 314774639
 
-Name: Rima Hleihil  
+Name: Rima Hleihil  - Only on assignment 1 part A
 
 Student Number: 203333539
 

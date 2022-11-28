@@ -1578,5 +1578,4 @@ faces : (241, 256, 272)
 faces : (241, 272, 257)
 ```
 ## Task 2:
-
-
+In order make transformations I used the Scale and Translate functions from glm library, using the output from the task 1 I was able to make the mesh fit my screen. using functions for scale, translate 

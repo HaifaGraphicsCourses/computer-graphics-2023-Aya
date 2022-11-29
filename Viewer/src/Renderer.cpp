@@ -211,14 +211,108 @@ void Renderer::Render(const Scene& scene)
 	// TODO: Replace this code with real scene rendering code
 	int half_width = viewport_width / 2;
 	int half_height = viewport_height / 2;
+	float max = 0.0f,maxx = 0.0f,maxy = 0.0f,minx = 0.0f,miny = 0.0f,max1 = 0.0f,max2 = 0.0f,avgx = 0.0f,avgy = 0.0f,deltax = 0.0f,deltay = 0.0f,deltaz = 0.0f;
+	glm::mat4 transformation
+	(
+		glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
+		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+	);
+	//DrawLine(glm::vec2(0, half_height), glm::vec2(viewport_width, half_height), glm::vec3(0.0f, 0.0f, 1.0f));
+	//DrawLine(glm::vec2(half_width, 0), glm::vec2(half_width, viewport_height), glm::vec3(1.0f, 0.0f, 0.0f));
 
+	if (scene.GetModelCount() > 0)
+	{
+		MeshModel& model = scene.GetActiveModel(); 
+		std::vector<glm::vec3> vertices = model.getVertices();
+		glm::mat4 newLocal = model.LocalTransformation();
+		glm::mat4 newWorld = model.WorldTransformation();
+		glm::vec3 mColor = model.GetColor();
+		// Check Fitting screen
+		for (int i = 0; i < vertices.size(); i++)
+		{
+			maxx = (maxx < vertices[i].x) ? vertices[i].x : maxx;
+			maxy = (maxy < vertices[i].y) ? vertices[i].y : maxy;
+			miny = (miny > vertices[i].y) ? vertices[i].y : miny;
+			minx = (minx > vertices[i].x) ? vertices[i].x : minx;
+		}
+		avgx = (maxx + minx) / 2;
+		avgy = (maxy + miny) / 2;
+		max1 = (maxx - minx);
+		max2 = (maxy - miny);
+		max = (max1 > max2) ? max1 : max2;
+		deltax = float(half_width) / max;
+		deltay = float(half_height) / max;
+		deltaz = float( half_height) / max;
+		avgx = avgx * deltax;
+		avgy = avgy * deltay;
+		glm::mat4 translate_mat
+		(
+			glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),
+			glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
+			glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
+			glm::vec4(float(half_width) - avgx, float(half_height) - avgy, 0.0f, 1.0f)
+		);
+		glm::mat4 translate_m_mat
+		(
+			glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),
+			glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
+			glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
+			glm::vec4(-avgx, -avgy, 0.0f, 1.0f)
+		);
+		glm::mat4 translate_center 
+		(
+			glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),
+			glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
+			glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
+			glm::vec4(half_width, half_height, 0.0f, 1.0f)
+		);
+		glm::mat4 scaling_mat 
+		(
+			glm::vec4(deltax, 0.0f, 0.0f, 0.0f),
+			glm::vec4(0.0f, deltay, 0.0f, 0.0f),
+			glm::vec4(0.0f, 0.0f, deltaz, 0.0f),
+			glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+		);
+
+		if (model.GetIsLocal() == false)// World transform :
+		{
+		newWorld = model.WorldTransformation();
+		transformation = newWorld * translate_mat * scaling_mat;
+		model.SetWorldTransform(newWorld);
+		}
+		else // Local transform :
+		{
+			transformation = translate_center * newLocal * translate_m_mat * scaling_mat;
+			model.SetLocalTransform(newLocal);
+		}
+		for (int faces = 0; faces < model.GetFacesCount(); faces++)
+		{
+			glm::vec3 p1 = vertices.at(model.GetFace(faces).GetVertexIndex(0) - 1);
+			glm::vec3 p2 = vertices.at(model.GetFace(faces).GetVertexIndex(1) - 1);
+			glm::vec3 p3 = vertices.at(model.GetFace(faces).GetVertexIndex(2) - 1);
+			glm::vec4 p4(p1, 1.0f);
+			glm::vec4 p5(p2, 1.0f);
+			glm::vec4 p6(p3, 1.0f);
+			p4 = transformation * p4;
+			p5 = transformation * p5;
+			p6 = transformation * p6;
+			glm::vec2 v1(p4.x, p4.y);
+			glm::vec2 v2(p5.x, p5.y);
+			glm::vec2 v3(p6.x, p6.y);
+			DrawLine(v1, v2, mColor);
+			DrawLine(v1, v3, mColor);
+			DrawLine(v2, v3, mColor);
+		}
+	}
 	// Drawing lines from a point to many points on a circles centered around the points - Sanity Check
-	int x0 = half_width, y0 = half_height, x1, y1, r = 500, a = 60;
+	/*int x0 = half_width, y0 = half_height, x1, y1, r = 500, a = 60;
 	for (int i = 0; i < a; i++) {
 		x1 = x0 + r * sin((2 * M_PI * i) / a);
 		y1 = y0 + r * cos((2 * M_PI * i) / a);
 		DrawLine(glm::ivec2(x0, y0), glm::ivec2(x1, y1), glm::vec3(1, 0, 2));
-	}
+	}*/
 
 	//Our Drawing - Heart CG (Computer Graphics)
 	/*glm::ivec2 pa(200, 100);
@@ -257,7 +351,7 @@ void Renderer::Render(const Scene& scene)
 	DrawLine(p7, p8, color2);
 	DrawLine(p6, p9, color2);
 	DrawLine(p10, p9, color2);*/
-	
+
 	//Drawing Lines
 	/*glm::ivec2 p1(150, 150);
 	glm::ivec2 p2(200, 200);

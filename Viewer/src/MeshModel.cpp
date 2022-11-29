@@ -46,37 +46,37 @@ const std::string& MeshModel::GetModelName() const
 std::vector<glm::vec3>& MeshModel::getVertices() {
 	return vertices;
 }
-//Try
+
 void MeshModel::WorldTranslate(float x, float y, float z)
 {
 	worldTranslate = glm::translate(worldTranslate, { x,y,z });
-	//worldTransform = worldTranslate * worldRotate * worldScale;
+	worldTransform = worldTranslate * worldRotate * worldScale;
 
 }
 void MeshModel::WorldScale(float x, float y, float z)
 {
 	worldScale = glm::scale(worldScale, { x,y,z });
-	//worldTransform = worldTranslate * worldRotate * worldScale;
+	worldTransform = worldTranslate * worldRotate * worldScale;
 }
 void MeshModel::WorldRotate(float angle, glm::vec3 axis)
 {
 	worldRotate = glm::rotate(worldRotate, glm::radians(angle), axis);
-	//worldTransform = worldTranslate * worldRotate * worldScale;
+	worldTransform = worldTranslate * worldRotate * worldScale;
 }
 void MeshModel::LocalTranslate(float x, float y, float z)
 {
 	localTranslate = glm::translate(localTranslate, { x,y,z });
-	//localTransform = localTranslate * localRotate * localScale;
+	localTransform = localTranslate * localRotate * localScale;
 }
 void MeshModel::LocalScale(float x, float y, float z)
 {
 	localScale = glm::scale(localScale, { x,y,z });
-	//localTransform = localTranslate * localRotate * localScale;
+	localTransform = localTranslate * localRotate * localScale;
 }
 void MeshModel::localRotatation(float angle, glm::vec3 axis)
 {
 	localRotate = glm::rotate(localRotate, glm::radians(angle), axis);
-	//localTransform = localTranslate * localRotate * localScale;
+	localTransform = localTranslate * localRotate * localScale;
 }
 const glm::mat4x4& MeshModel::LocalTransformation() const
 {

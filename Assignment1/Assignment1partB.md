@@ -1578,21 +1578,32 @@ faces : (241, 256, 272)
 faces : (241, 272, 257)
 ```
 ## Task 2:
-In order to make transformations I used the Scale and Translate functions from the glm library.
+In order to make transformations I used the Scale and Translate functions from the glm library, I also made specific functions for scale, translate, and rotate and  among the vertices, I checked the min and max values of x, y, and z (in the renderer constructor).
 ## Task 3:
-I chose to display the models on the screen by ignoring the z coordinate
- Screenshot of the blob model :
+I've transferred the mesh triangles to the Renderer object, iterate over all of the triangles and draw all the lines using the DrawLine function, by ignoring the z coordinates, Screenshot of the blob model :
 ![image](https://user-images.githubusercontent.com/95486750/204455827-246e0092-9472-49c1-b786-b3b9fbc88ad7.png)
 Screenshot of the teapot model:
 ![image](https://user-images.githubusercontent.com/95486750/204461101-51918fb8-ac24-425f-96c1-f12ae6f34a1b.png)
 ## Task 4:
-![image](https://user-images.githubusercontent.com/95486750/204496251-cd43ca35-511a-4a48-ad7b-fde6bfd0b396.png)
-## Task 5:
-Local transform:
-![image](https://user-images.githubusercontent.com/95486750/204494578-c11ab71d-3822-43ff-adb1-f140191b37eb.png)
-World transform:
-![image](https://user-images.githubusercontent.com/95486750/204495153-60a97c0e-7729-4d35-9f81-14fc84058efa.png)
+I've computed the transformations that way - translate_mat * scale_mat *rotate_mat and every matrix was computed using functions such as glm::translate and glm::scale- It all were computed as was explained in the lecture.
 
-world transform:
+translate_mat - the matrix that translates the world/local 
+scale_mat - the matrix that scales the world/local 
+rotate_mat - the matrix that rotates the world/local around z axis
+
+GUI : Local transformation
+ ![image](https://user-images.githubusercontent.com/95486750/204544591-d765e1d2-7aa0-4732-b9b6-44e08bc72b17.png)
+ ![image](https://user-images.githubusercontent.com/95486750/204545337-71a5658d-75ef-499f-880f-11ca8b11ceed.png)
+
+ GUI : World transformation
+ ![image](https://user-images.githubusercontent.com/95486750/204544877-20ef904a-f546-45d4-8fe7-a9942f7c4c62.png)
+ ![image](https://user-images.githubusercontent.com/95486750/204545580-e5f944d5-d0c1-4790-bf5c-49f1e787da12.png)
+
+## Task 5:
+Translating in the model frame, then rotating in the world frame example:
+![image](https://user-images.githubusercontent.com/95486750/204550496-c52dd00c-a836-44a9-a4d0-23ef35555eb8.png)
+Translating in the world frame and then rotating in the local frame example:
+![image](https://user-images.githubusercontent.com/95486750/204550931-cebb7e88-c00b-4b28-a44a-6e85f940e9a6.png)
+
 
 

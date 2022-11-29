@@ -246,4 +246,164 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			show_another_window = false;
 		ImGui::End();
 	}
+	//Task - GUI Window
+       //Editor window :
+    {
+        static glm::mat4 local_scale = {
+                            glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                            glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                            glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                            glm::vec4(0.0f,0.0f,0.0f,1.0f)
+        };
+        static glm::mat4 local_translate = {
+                                glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                                glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                                glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                                glm::vec4(0.0f,0.0f,0.0f,1.0f)
+        };
+        static glm::mat4 local_rotate = {
+                                glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                                glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                                glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                                glm::vec4(0.0f,0.0f,0.0f,1.0f)
+        };
+        static glm::mat4 world_scale = {
+                                glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                                glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                                glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                                glm::vec4(0.0f,0.0f,0.0f,1.0f)
+        };
+        static glm::mat4 world_translate = {
+                                glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                                glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                                glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                                glm::vec4(0.0f,0.0f,0.0f,1.0f)
+        };
+        static glm::mat4 world_rotate = {
+                                glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                                glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                                glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                                glm::vec4(0.0f,0.0f,0.0f,1.0f)
+        };
+        static bool mode = true;
+        static float localscale[] = { 0.0f, 0.0f };
+        static float worldscale[] = { 0.0f, 0.0f };
+        static float localtranslate[] = { 0.0f, 0.0f };
+        static float worldtranslate[] = { 0.0f, 0.0f };
+        static float local_x = 0.0f;
+        static float local_y = 0.0f;
+        static float local_Z = 0.0f;
+        static float world_x = 0.0f;
+        static float world_y = 0.0f;
+        static float world_z = 0.0f;
+        static glm::vec3 color(0.0f, 0.0f, 0.0f);
+        ImGui::Begin("Edit");    
+        ImGui::Text("User Transformation control");
+        if (ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_None))
+        {
+            if (ImGui::BeginTabItem("Local Transform"))
+            {
+                mode = true;
+                ImGui::SliderFloat2("scale", localscale, -1.0f, 1.0f);
+                local_scale = {
+                        glm::vec4(localscale[0] + 1,0.0f,0.0f,0.0f),
+                        glm::vec4(0.0f,localscale[1] + 1,0.0f,0.0f),
+                        glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                        glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                };
+                ImGui::SliderFloat2("Translate", localtranslate, -1.0f, 1.0f);
+                local_translate = {
+                        glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                        glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                        glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                        glm::vec4(localtranslate[0] * 500,localtranslate[1] * 350,0.0f,1.0f)
+                };
+                ImGui::SliderFloat("X-rotate", &local_x, 0, 2 * M_PI);
+                ImGui::SliderFloat("Y-rotate", &local_y, 0, 2 * M_PI);
+                ImGui::SliderFloat("Z-rotate", &local_Z, 0, 2 * M_PI);
+                glm::mat4 rotate_x_mat = {
+                glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                glm::vec4(0.0f,cos(local_x),sin(local_x),0.0f),
+                glm::vec4(0.0f,-sin(local_x),cos(local_x),0.0f),
+                glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                };
+                glm::mat4 rotate_y_mat = {
+                glm::vec4(cos(local_y),0.0f,sin(local_y),0.0f),
+                glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                glm::vec4(-sin(local_y),0.0f,cos(local_y),0.0f),
+                glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                };
+                glm::mat4 rotate_z_mat = {
+                glm::vec4(cos(local_Z),sin(local_Z),0.0f,0.0f),
+                glm::vec4(-sin(local_Z),cos(local_Z),0.0f,0.0f),
+                glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                };
+                local_rotate = rotate_z_mat * rotate_y_mat * rotate_x_mat;
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("World Transform"))
+            {
+                mode = false;
+                ImGui::SliderFloat2("scale", worldscale, -1.0f, 1.0f);
+                world_scale = {
+                        glm::vec4(worldscale[0] + 1,0.0f,0.0f,0.0f),
+                        glm::vec4(0.0f,worldscale[1] + 1,0.0f,0.0f),
+                        glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                        glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                };
+                ImGui::SliderFloat2("Translate", worldtranslate, -1.0f, 1.0f);
+                world_translate = {
+                        glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                        glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                        glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                        glm::vec4(worldtranslate[0] * 500,worldtranslate[1] * 350,0.0f,1.0f)
+                };
+                ImGui::SliderFloat("X-rotate", &world_x, 0, 2 * M_PI);
+                ImGui::SliderFloat("Y-rotate", &world_y, 0, 2 * M_PI);
+                ImGui::SliderFloat("Z-rotate", &world_z, 0, 2 * M_PI);
+                glm::mat4 rotate_x_mat = {
+                glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                glm::vec4(0.0f,cos(world_x),sin(world_x),0.0f),
+                glm::vec4(0.0f,-sin(world_x),cos(world_x),0.0f),
+                glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                };
+                glm::mat4 rotate_y_mat = {
+                glm::vec4(cos(world_y),0.0f,sin(world_y),0.0f),
+                glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                glm::vec4(-sin(world_y),0.0f,cos(world_y),0.0f),
+                glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                };
+                glm::mat4 rotate_z_mat = {
+                glm::vec4(cos(world_z),sin(world_z),0.0f,0.0f),
+                glm::vec4(-sin(world_z),cos(world_z),0.0f,0.0f),
+                glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                };
+                world_rotate = rotate_z_mat * rotate_y_mat * rotate_x_mat; 
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+        ImGui::ColorEdit3("color", (float*)&color);
+        if (scene.GetModelCount() > 0) 
+        {
+            MeshModel& model = scene.GetActiveModel();
+            model.SetIsLocal(mode);
+            model.SetColor(color);
+            if (mode == true) //Local 
+            {
+                model.SetLocalScale(local_scale);
+                model.SetLocalTranslate(local_translate);
+                model.SetLocalRotate(local_rotate);
+            }
+        	if (mode == false) // World
+            {
+                model.SetWorldScale(world_scale);
+                model.SetWorldTransform(world_translate);
+                model.SetWorldRotate(world_rotate);
+            }
+        }
+        ImGui::End();
+    }
 }

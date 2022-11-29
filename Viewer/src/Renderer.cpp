@@ -219,8 +219,8 @@ void Renderer::Render(const Scene& scene)
 		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
 		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
 	);
-	//DrawLine(glm::vec2(0, half_height), glm::vec2(viewport_width, half_height), glm::vec3(0.0f, 0.0f, 1.0f));
-	//DrawLine(glm::vec2(half_width, 0), glm::vec2(half_width, viewport_height), glm::vec3(1.0f, 0.0f, 0.0f));
+	DrawLine(glm::vec2(0, half_height), glm::vec2(viewport_width, half_height), glm::vec3(0.0f, 0.0f, 1.0f));
+	DrawLine(glm::vec2(half_width, 0), glm::vec2(half_width, viewport_height), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	if (scene.GetModelCount() > 0)
 	{

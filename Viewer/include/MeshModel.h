@@ -37,6 +37,34 @@ public:
 	{
 		return modelColor;
 	}
+	void SetColor(glm::vec3 new_color)
+	{
+		modelColor=new_color;
+	}
+	void SetLocalScale(glm::mat4x4 newTransform)
+	{
+		localScale = newTransform;
+	}
+	void SetLocalTranslate(glm::mat4x4 newTransform)
+	{
+		localTranslate = newTransform;
+	}
+	void SetLocalRotate(glm::mat4x4 newTransform)
+	{
+		localRotate = newTransform;
+	}
+	void SetWorldScale(glm::mat4x4 newTransform)
+	{
+		worldScale = newTransform;
+	}
+	void SetWorldTranslate(glm::mat4x4 newTransform)
+	{
+		worldTranslate = newTransform;
+	}
+	void SetWorldRotate(glm::mat4x4 newTransform)
+	{
+		worldRotate = newTransform;
+	}
 	void SetLocalTransform(glm::mat4x4 newTransform)
 	{
 		localTransform = newTransform;

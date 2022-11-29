@@ -221,10 +221,9 @@ void Renderer::Render(const Scene& scene)
 	);
 	DrawLine(glm::vec2(0, half_height), glm::vec2(viewport_width, half_height), glm::vec3(0.0f, 0.0f, 1.0f));
 	DrawLine(glm::vec2(half_width, 0), glm::vec2(half_width, viewport_height), glm::vec3(1.0f, 0.0f, 0.0f));
-
-	if (scene.GetModelCount() > 0)
+	for (int i = 0; i < scene.GetModelCount(); i++)
 	{
-		MeshModel& model = scene.GetActiveModel(); 
+		MeshModel& model = scene.GetModel(i); 
 		std::vector<glm::vec3> vertices = model.getVertices();
 		glm::mat4 newLocal = model.LocalTransformation();
 		glm::mat4 newWorld = model.WorldTransformation();

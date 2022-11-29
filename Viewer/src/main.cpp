@@ -303,23 +303,25 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
             if (ImGui::BeginTabItem("Local-Transform"))
             {
                 mode = true;
-                ImGui::SliderFloat2("scale", localscale, -1.0f, 1.0f);
+                ImGui::SliderFloat("scale-x", &localscale[0], -1.0f, 1.0f);
+                ImGui::SliderFloat("scale-y", &localscale[1], -1.0f, 1.0f);
                 local_scale = {
                         glm::vec4(localscale[0] + 1,0.0f,0.0f,0.0f),
                         glm::vec4(0.0f,localscale[1] + 1,0.0f,0.0f),
                         glm::vec4(0.0f,0.0f,1.0f,0.0f),
                         glm::vec4(0.0f,0.0f,0.0f,1.0f)
                 };
-                ImGui::SliderFloat2("Translate", localtranslate, -1.0f, 1.0f);
+                ImGui::SliderFloat("Translate-x", &localtranslate[0], -1.0f, 1.0f);
+                ImGui::SliderFloat("Translate-y", &localtranslate[1], -1.0f, 1.0f);
                 local_translate = {
                         glm::vec4(1.0f,0.0f,0.0f,0.0f),
                         glm::vec4(0.0f,1.0f,0.0f,0.0f),
                         glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                        glm::vec4(localtranslate[0] * 600,localtranslate[1] * 350,0.0f,1.0f)
+                        glm::vec4(localtranslate[0] * 500,localtranslate[1] * 350,0.0f,1.0f)
                 };
-                ImGui::SliderFloat("X-rotate", &local_x, 0, 2 * M_PI);
-                ImGui::SliderFloat("Y-rotate", &local_y, 0, 2 * M_PI);
-                ImGui::SliderFloat("Z-rotate", &local_Z, 0, 2 * M_PI);
+                ImGui::SliderFloat("Rotate-x", &local_x, 0, 2 * M_PI);
+                ImGui::SliderFloat("Rotate-y", &local_y, 0, 2 * M_PI);
+                ImGui::SliderFloat("Rotate-z", &local_Z, 0, 2 * M_PI);
                 glm::mat4 rotate_x_mat = {
                 glm::vec4(1.0f,0.0f,0.0f,0.0f),
                 glm::vec4(0.0f,cos(local_x),sin(local_x),0.0f),
@@ -344,23 +346,25 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
             if (ImGui::BeginTabItem("World-Transform"))
             {
                 mode = false;
-                ImGui::SliderFloat2("scale", worldscale, -1.0f, 1.0f);
+                ImGui::SliderFloat("scale-x", &worldscale[0], -1.0f, 1.0f);
+                ImGui::SliderFloat("scale-y", &worldscale[1], -1.0f, 1.0f);
                 world_scale = {
                         glm::vec4(worldscale[0] + 1,0.0f,0.0f,0.0f),
                         glm::vec4(0.0f,worldscale[1] + 1,0.0f,0.0f),
                         glm::vec4(0.0f,0.0f,1.0f,0.0f),
                         glm::vec4(0.0f,0.0f,0.0f,1.0f)
                 };
-                ImGui::SliderFloat2("Translate", worldtranslate, -1.0f, 1.0f);
+                ImGui::SliderFloat("Translate-x", &worldtranslate[0], -1.0f, 1.0f);
+                ImGui::SliderFloat("Translate-y", &worldtranslate[1], -1.0f, 1.0f);
                 world_translate = {
                         glm::vec4(1.0f,0.0f,0.0f,0.0f),
                         glm::vec4(0.0f,1.0f,0.0f,0.0f),
                         glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                        glm::vec4(worldtranslate[0] * 600,worldtranslate[1] * 350,0.0f,1.0f)
+                        glm::vec4(worldtranslate[0] * 500,worldtranslate[1] * 350,0.0f,1.0f)
                 };
-                ImGui::SliderFloat("X-rotate", &world_x, 0, 2 * M_PI);
-                ImGui::SliderFloat("Y-rotate", &world_y, 0, 2 * M_PI);
-                ImGui::SliderFloat("Z-rotate", &world_z, 0, 2 * M_PI);
+                ImGui::SliderFloat("Rotate-x", &world_x, 0, 2 * M_PI);
+                ImGui::SliderFloat("Rotate-y", &world_y, 0, 2 * M_PI);
+                ImGui::SliderFloat("Rotate-z", &world_z, 0, 2 * M_PI);
                 glm::mat4 rotate_x_mat = {
                 glm::vec4(1.0f,0.0f,0.0f,0.0f),
                 glm::vec4(0.0f,cos(world_x),sin(world_x),0.0f),

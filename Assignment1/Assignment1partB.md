@@ -1605,5 +1605,8 @@ Translating in the model frame, then rotating in the world frame example:
 Translating in the world frame and then rotating in the local frame example:
 ![image](https://user-images.githubusercontent.com/95486750/204550931-cebb7e88-c00b-4b28-a44a-6e85f940e9a6.png)
 
+## Task 6:
+Screenshot for several models:
+![image](https://user-images.githubusercontent.com/95486750/204554507-c5b43c3c-6238-4ba0-b4d3-ac86686a237e.png)
 
 

@@ -341,6 +341,32 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
                 glm::vec4(0.0f,0.0f,0.0f,1.0f)
                 };
                 local_rotate = rotate_z_mat * rotate_y_mat * rotate_x_mat;
+                if (ImGui::Button("Reset")) {
+
+                    local_scale = {
+                                             glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                                             glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                                             glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                                             glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                    };
+                    local_translate = {
+                                            glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                                            glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                                            glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                                            glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                    };
+                    local_rotate = {
+                                            glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                                            glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                                            glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                                            glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                    };
+                    localscale[0] = 0.0f; localscale[1] = 0.0f;
+                    localtranslate[0] = 0.0f; localtranslate[1] = 0.0f;
+                    local_x = 0.0f;
+                    local_y = 0.0f;
+                    local_Z = 0.0f;
+                }
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("World-Transform"))
@@ -383,7 +409,33 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
                 glm::vec4(0.0f,0.0f,1.0f,0.0f),
                 glm::vec4(0.0f,0.0f,0.0f,1.0f)
                 };
-                world_rotate = rotate_z_mat * rotate_y_mat * rotate_x_mat; 
+                world_rotate = rotate_z_mat * rotate_y_mat * rotate_x_mat;
+                if (ImGui::Button("Reset")) {
+
+                    world_scale = {
+                                             glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                                             glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                                             glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                                             glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                    };
+                    world_translate = {
+                                            glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                                            glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                                            glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                                            glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                    };
+                    world_rotate = {
+                                            glm::vec4(1.0f,0.0f,0.0f,0.0f),
+                                            glm::vec4(0.0f,1.0f,0.0f,0.0f),
+                                            glm::vec4(0.0f,0.0f,1.0f,0.0f),
+                                            glm::vec4(0.0f,0.0f,0.0f,1.0f)
+                    };
+                    worldscale[0] = 0.0f; worldscale[1] = 0.0f;
+                    worldtranslate[0] = 0.0f; worldtranslate[1] = 0.0f;
+                    world_x = 0.0f;
+                    world_y = 0.0f;
+                    world_z = 0.0f;
+                }
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();

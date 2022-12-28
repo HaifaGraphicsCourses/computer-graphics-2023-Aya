@@ -22,7 +22,7 @@ static float fovy = 90.0f;
 static glm::vec3 eye = { 0,0,2 };
 static glm::vec3 at = { 0,0,0 };
 static glm::vec3 up = { 0,1,0 };
-bool local_axes,world_axes,is_ortho, is_boundingBox,is_normals = false;
+bool local_axes, world_axes, is_ortho, is_boundingBox, is_normals = false;
 int Orthographic = 0;
 bool show_demo_window = false;
 bool show_another_window = false;
@@ -138,7 +138,7 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	if (!io.WantCaptureKeyboard)
 	{
 		// TODO: Handle keyboard events here
-		if (io.KeysDown['A']) 
+		if (io.KeysDown['A'])
 		{
 			scene.GetModel(0).LocalTranslate(-0.05, 0, 0);
 		}
@@ -155,7 +155,7 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 			scene.GetModel(0).LocalTranslate(0, -0.05, 0);
 		}
 
-		else if (io.KeysDown['J'])  
+		else if (io.KeysDown['J'])
 		{
 			scene.GetModel(0).localRotatation(5, glm::vec3(1.0f, 0.0f, 0.0f));
 		}
@@ -163,20 +163,20 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 		{
 			scene.GetModel(0).localRotatation(-5, glm::vec3(1.0f, 0.0f, 0.0f));
 		}
-		else if (io.KeysDown['I']) 
+		else if (io.KeysDown['I'])
 		{
 			scene.GetModel(0).localRotatation(5, glm::vec3(0.0f, 1.0f, 0.0f));
 		}
-		else if (io.KeysDown['K']) 
+		else if (io.KeysDown['K'])
 		{
 			scene.GetModel(0).localRotatation(-5, glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 
-		else if (io.KeysDown['T']) 
+		else if (io.KeysDown['T'])
 		{
 			scene.GetModel(0).LocalScale(1.1, 1.1, 1.1);
 		}
-		else if (io.KeysDown['Y']) 
+		else if (io.KeysDown['Y'])
 		{
 			scene.GetModel(0).LocalScale(0.9, 0.9, 0.9);
 		}
@@ -256,9 +256,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	// Transformation window
 	{
 		ImGui::SetNextWindowSize(ImVec2(400, 430));
-		ImGui::Begin("Transformations Control:");                          
+		ImGui::Begin("Transformations Control:");
 
-		ImGui::Checkbox("Demo Window", &show_demo_window);      
+		ImGui::Checkbox("Demo Window", &show_demo_window);
 		ImGui::Checkbox("Another Window", &show_another_window);
 		static glm::vec3 world_translation(0.0f, 0.0f, 0.0f);
 		static glm::vec3 world_rotation(0.0f, 0.0f, 0.0f);
@@ -323,7 +323,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		world_prev_scale = world_scale;
 		world_prev_translation = world_translation;
 		world_prev_rotation = world_rotation;
-		ImGui::ColorEdit3("clear color", (float*)&clear_color);  
+		ImGui::ColorEdit3("clear color", (float*)&clear_color);
 		if (ImGui::Button("Reset Transformation"))
 		{
 			local_prev_translation = local_translation = glm::vec3{ 0,0,0 };

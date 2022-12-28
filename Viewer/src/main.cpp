@@ -274,15 +274,20 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		static float world_prev_scale = 1.0f;
 		ImGui::Text("        ");
 		ImGui::Text("Local Transformations  ");
-		ImGui::Text("      X           Y           Z  ");
-		ImGui::SliderFloat3("Translation", &local_translation.x, -1.5f, 1.5f);
-		ImGui::SliderFloat3("Rotation", &local_rotation.x, -180.0f, 180.0f);
+		ImGui::SliderFloat("Translate-x", &local_translation[0], -1.0f, 1.0f);
+		ImGui::SliderFloat("Translate-y", &local_translation[1], -1.0f, 1.0f);
+		ImGui::SliderFloat("Translate-z", &local_translation[2], -1.0f, 1.0f);
+		ImGui::SliderFloat("Rotation-x", &local_rotation[0], -1.0f, 1.0f);
+		ImGui::SliderFloat("Rotation-y", &local_rotation[1], -1.0f, 1.0f);
+		ImGui::SliderFloat("Rotation-z", &local_rotation[2], -1.0f, 1.0f);
 		ImGui::SliderFloat("Scale", &local_scale, 0.5f, 1.5f);
-		ImGui::Text("World Transformations  ");
-		ImGui::Text("      X           Y           Z  ");
-
-		ImGui::SliderFloat3("Translation", &world_translation.x, -1.5f, 1.5f);
-		ImGui::SliderFloat3("Rotation", &world_rotation.x, -180.0f, 180.0f);
+		ImGui::Text("World Transformations ");
+		ImGui::SliderFloat("Translate-x", &world_translation[0], -1.0f, 1.0f);
+		ImGui::SliderFloat("Translate-y", &world_translation[1], -1.0f, 1.0f);
+		ImGui::SliderFloat("Translate-z", &world_translation[2], -1.0f, 1.0f);
+		ImGui::SliderFloat("Rotation-x", &world_rotation[0], -1.0f, 1.0f);
+		ImGui::SliderFloat("Rotation-y", &world_rotation[1], -1.0f, 1.0f);
+		ImGui::SliderFloat("Rotation-z", &world_rotation[2], -1.0f, 1.0f);
 		ImGui::SliderFloat("Scale", &world_scale, 0.5f, 1.5f);
 		if (local_prev_scale != local_scale || local_prev_translation != local_translation || local_prev_rotation != local_rotation) {
 			scene.GetModel(0).LocalTranslate(local_translation.x - local_prev_translation.x, local_translation.y - local_prev_translation.y, local_translation.z - local_prev_translation.z);

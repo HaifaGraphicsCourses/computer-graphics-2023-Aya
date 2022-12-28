@@ -46,6 +46,3 @@ I've added checkboxes to toggle:
 - Faces normals
 - Vertexes normals
 - Bounding box
-
-<b>14.</b>
-

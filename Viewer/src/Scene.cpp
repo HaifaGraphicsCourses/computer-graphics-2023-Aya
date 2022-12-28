@@ -4,7 +4,11 @@
 
 Scene::Scene() :
 	active_camera_index(0),
-	active_model_index(0)
+	active_model_index(0),
+    draw_box(false),
+	draw_normals(false),
+	draw_face_normals(false)
+
 {
 
 }

@@ -27,7 +27,9 @@ public:
 
 	void SetActiveModelIndex(int index);
 	int GetActiveModelIndex() const;
-	
+	bool draw_box;
+	bool draw_normals;
+	bool draw_face_normals;
 private:
 	vector<shared_ptr<MeshModel>> mesh_models;
 	vector<shared_ptr<Camera>> cameras;

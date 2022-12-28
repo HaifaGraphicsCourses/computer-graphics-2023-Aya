@@ -9,19 +9,17 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	normals(normals),
 	isLocal(true)
 {
-	localTransform = worldTransform = localTranslate = worldTranslate =localScale = worldScale = localRotate  = worldRotate = {
-	   glm::vec4(1.0f,0.0f,0.0f,0.0f),
-	   glm::vec4(0.0f,1.0f,0.0f,0.0f),
-	   glm::vec4(0.0f,0.0f,1.0f,0.0f),
-	   glm::vec4(0.0f,0.0f,0.0f,1.0f)
-	};
+	localTransform = worldTransform = localTranslate = worldTranslate =localScale = worldScale = localRotate  = worldRotate = glm::mat4(1.0f);
+
 	modelColor = glm::vec3(0.0f, 0.0f, 0.0f);
-	for (int j = 0; j < vertices.size(); j++) {
+	worldAxes = false;
+	localAxes = false;
+	/*for (int j = 0; j < vertices.size(); j++) {
 		std::cout << "vertices " << j << "(X: " << vertices[j][0] << " ,Y: " << vertices[j][1] << " ,Z: " << vertices[j][2]<<")" << std::endl;
 	}
 	for (int i = 0; i < faces.size(); i++) {
 		std::cout << "faces "  << ": (" << faces[i].GetVertexIndex(0) << ", " << faces[i].GetVertexIndex(1) << ", " << faces[i].GetVertexIndex(2)<<")" << std::endl;
-	}
+	}*/
 }
 
 MeshModel::~MeshModel()
@@ -45,6 +43,19 @@ const std::string& MeshModel::GetModelName() const
 
 std::vector<glm::vec3>& MeshModel::getVertices() {
 	return vertices;
+}
+float MeshModel::GetVertex(int index, int coordinate)
+{
+	return vertices[index][coordinate];
+}
+float MeshModel::GetNormal(int index, int coordinate)
+{
+	return normals[index][coordinate];
+}
+
+std::vector<glm::vec3> MeshModel::GetNormals()
+{
+	return normals;
 }
 
 void MeshModel::WorldTranslate(float x, float y, float z)
@@ -86,6 +97,17 @@ const glm::mat4x4& MeshModel::LocalTransformation() const
 
 const glm::mat4x4& MeshModel::WorldTransformation() const
 {
-	glm::mat4x4 worldTrans = worldTranslate * worldRotate* worldScale;
-	return worldTrans;
+	return worldTranslate * worldRotate* worldScale;
+	
+}
+void MeshModel::ResetTransformations()
+{
+	localTransform = glm::mat4(1.0f);
+	worldTransform = glm::mat4(1.0f);
+	localTranslate = glm::mat4(1.0f);
+	localRotate = glm::mat4(1.0f);
+	localScale = glm::mat4(1.0f);
+	worldTranslate = glm::mat4(1.0f);
+	worldRotate = glm::mat4(1.0f);
+	worldScale = glm::mat4(1.0f);
 }

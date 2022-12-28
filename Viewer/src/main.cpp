@@ -1,7 +1,5 @@
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <imgui/imgui.h>
-#include <stdio.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <nfd.h>
@@ -12,17 +10,24 @@
 #include "Renderer.h"
 #include "Scene.h"
 #include "Utils.h"
+#include <iostream>
 
-/**
- * Fields
- */
+static int top = 1.0f;
+static int bottom = -1.0f;
+static int pLeft = -1.0;
+static int pRight = 1.0f;
+static float pNear = 0.1f;
+static float pFar = 1000.0f;
+static float fovy = 90.0f;
+static glm::vec3 eye = { 0,0,2 };
+static glm::vec3 at = { 0,0,0 };
+static glm::vec3 up = { 0,1,0 };
+bool local_axes,world_axes,is_ortho, is_boundingBox,is_normals = false;
+int Orthographic = 0;
 bool show_demo_window = false;
 bool show_another_window = false;
 glm::vec4 clear_color = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 
-/**
- * Function declarations
- */
 static void GlfwErrorCallback(int error, const char* description);
 GLFWwindow* SetupGlfwWindow(int w, int h, const char* window_name);
 ImGuiIO& SetupDearImgui(GLFWwindow* window);
@@ -31,18 +36,15 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 void Cleanup(GLFWwindow* window);
 void DrawImguiMenus(ImGuiIO& io, Scene& scene);
 
-/**
- * Function implementation
- */
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
 	// TODO: Handle mouse scroll here
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-	int windowWidth = 1280, windowHeight = 720;
+	int windowWidth = 1000, windowHeight = 1000;
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
 	if (!window)
 		return 1;
@@ -53,19 +55,23 @@ int main(int argc, char **argv)
 
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
-	
+
+	Camera camera;
+	scene.AddCamera(std::make_shared<Camera>(camera));
+	scene.SetActiveCameraIndex(0);
+
 	ImGuiIO& io = SetupDearImgui(window);
 	glfwSetScrollCallback(window, ScrollCallback);
-    while (!glfwWindowShouldClose(window))
-    {
-        glfwPollEvents();
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwPollEvents();
 		StartFrame();
 		DrawImguiMenus(io, scene);
 		RenderFrame(window, scene, renderer, io);
-    }
+	}
 
 	Cleanup(window);
-    return 0;
+	return 0;
 }
 
 static void GlfwErrorCallback(int error, const char* description)
@@ -81,16 +87,16 @@ GLFWwindow* SetupGlfwWindow(int w, int h, const char* window_name)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	
-	#if __APPLE__
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	#endif
-	
+
+#if __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
 	GLFWwindow* window = glfwCreateWindow(w, h, window_name, NULL, NULL);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
-						 // very importent!! initialization of glad
-						 // https://stackoverflow.com/questions/48582444/imgui-with-the-glad-opengl-loader-throws-segmentation-fault-core-dumped
+	// very importent!! initialization of glad
+	// https://stackoverflow.com/questions/48582444/imgui-with-the-glad-opengl-loader-throws-segmentation-fault-core-dumped
 
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	return window;
@@ -120,20 +126,61 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	int frameBufferWidth, frameBufferHeight;
 	glfwMakeContextCurrent(window);
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
-	
+
 	if (frameBufferWidth != renderer.GetViewportWidth() || frameBufferHeight != renderer.GetViewportHeight())
 	{
 		// TODO: Set new aspect ratio
+		if (scene.GetCameraCount() != 0) {
+			renderer.SetSize(frameBufferWidth, frameBufferHeight);
+		}
 	}
 
 	if (!io.WantCaptureKeyboard)
 	{
 		// TODO: Handle keyboard events here
-		if (io.KeysDown[65])
+		if (io.KeysDown['A']) 
 		{
-			// A key is down
-			// Use the ASCII table for more key codes (https://www.asciitable.com/)
+			scene.GetModel(0).LocalTranslate(-0.05, 0, 0);
 		}
+		else if (io.KeysDown['D'])
+		{
+			scene.GetModel(0).LocalTranslate(0.05, 0, 0);
+		}
+		else if (io.KeysDown['W'])
+		{
+			scene.GetModel(0).LocalTranslate(0, 0.05, 0);
+		}
+		else if (io.KeysDown['S'])
+		{
+			scene.GetModel(0).LocalTranslate(0, -0.05, 0);
+		}
+
+		else if (io.KeysDown['J'])  
+		{
+			scene.GetModel(0).localRotatation(5, glm::vec3(1.0f, 0.0f, 0.0f));
+		}
+		else if (io.KeysDown['L'])
+		{
+			scene.GetModel(0).localRotatation(-5, glm::vec3(1.0f, 0.0f, 0.0f));
+		}
+		else if (io.KeysDown['I']) 
+		{
+			scene.GetModel(0).localRotatation(5, glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+		else if (io.KeysDown['K']) 
+		{
+			scene.GetModel(0).localRotatation(-5, glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+
+		else if (io.KeysDown['T']) 
+		{
+			scene.GetModel(0).LocalScale(1.1, 1.1, 1.1);
+		}
+		else if (io.KeysDown['Y']) 
+		{
+			scene.GetModel(0).LocalScale(0.9, 0.9, 0.9);
+		}
+
 	}
 
 	if (!io.WantCaptureMouse)
@@ -141,7 +188,6 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 		// TODO: Handle mouse events here
 		if (io.MouseDown[0])
 		{
-			// Left mouse button is down
 		}
 	}
 
@@ -170,7 +216,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	 * MeshViewer menu
 	 */
 	ImGui::Begin("MeshViewer Menu");
-	
+
 	// Menu Bar
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -203,41 +249,95 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	// Controls
 	ImGui::ColorEdit3("Clear Color", (float*)&clear_color);
 	// TODO: Add more controls as needed
-	
 	ImGui::End();
-
-	/**
-	 * Imgui demo - you can remove it once you are familiar with imgui
-	 */
-	
-	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(&show_demo_window);
 
-	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+	// Transformation window
 	{
-		static float f = 0.0f;
-		static int counter = 0;
+		ImGui::SetNextWindowSize(ImVec2(400, 430));
+		ImGui::Begin("Transformations Control:");                          
 
-		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+		ImGui::Checkbox("Demo Window", &show_demo_window);      
 		ImGui::Checkbox("Another Window", &show_another_window);
+		static glm::vec3 world_translation(0.0f, 0.0f, 0.0f);
+		static glm::vec3 world_rotation(0.0f, 0.0f, 0.0f);
+		static float world_scale = 1.0f;
+		static glm::vec3 local_translation(0.0f, 0.0f, 0.0f);
+		static glm::vec3 local_rotation(0.0f, 0.0f, 0.0f);
+		static float local_scale = 1.0f;
+		static glm::vec3 local_prev_translation(0.0f, 0.0f, 0.0f);
+		static glm::vec3 local_prev_rotation(0.0f, 0.0f, 0.0f);
+		static float local_prev_scale = 1.0f;
+		static glm::vec3 world_prev_translation(0.0f, 0.0f, 0.0f);
+		static glm::vec3 world_prev_rotation(0.0f, 0.0f, 0.0f);
+		static float world_prev_scale = 1.0f;
+		ImGui::Text("        ");
+		ImGui::Text("Local Transformations  ");
+		ImGui::Text("      X           Y           Z  ");
+		ImGui::SliderFloat3("Translation", &local_translation.x, -1.5f, 1.5f);
+		ImGui::SliderFloat3("Rotation", &local_rotation.x, -180.0f, 180.0f);
+		ImGui::SliderFloat("Scale", &local_scale, 0.5f, 1.5f);
+		ImGui::Text("        ");
+		ImGui::Text("       World Transformations  ");
+		ImGui::Text("      X           Y           Z  ");
 
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+		ImGui::SliderFloat3("Translation", &world_translation.x, -1.5f, 1.5f);
+		ImGui::SliderFloat3("Rotation", &world_rotation.x, -180.0f, 180.0f);
+		ImGui::SliderFloat("Scale", &world_scale, 0.5f, 1.5f);
+		if (local_prev_scale != local_scale || local_prev_translation != local_translation || local_prev_rotation != local_rotation) {
+			scene.GetModel(0).LocalTranslate(local_translation.x - local_prev_translation.x, local_translation.y - local_prev_translation.y, local_translation.z - local_prev_translation.z);
+			local_prev_scale = local_scale;
+			scene.GetModel(0).localScale[0][0] = scene.GetModel(0).localScale[1][1] = scene.GetModel(0).localScale[2][2] = local_scale;
+		}
+		if (local_rotation.x != local_prev_rotation.x) {
+			scene.GetModel(0).localRotatation(local_rotation.x - local_prev_rotation.x, { 1.0f,0.0f,0.0f });
+		}
+		if (local_rotation.y != local_prev_rotation.y) {
+			scene.GetModel(0).localRotatation(local_rotation.y - local_prev_rotation.y, { 0.0f,1.0f,0.0f });
+		}
+		if (local_rotation.z != local_prev_rotation.z) {
+			scene.GetModel(0).localRotatation(local_rotation.z - local_prev_rotation.z, { 0.0f,0.0f,1.0f });
+		}
+		local_prev_scale = local_scale;
+		local_prev_translation = local_translation;
+		local_prev_rotation = local_rotation;
+		if ((world_prev_scale != world_scale) || (world_prev_translation != world_translation) || (world_prev_rotation != world_rotation)) {
+			scene.GetModel(0).WorldTranslate(5 * world_translation.x - 5 * world_prev_translation.x, 5 * world_translation.y - 5 * world_prev_translation.y, 5 * world_translation.z - 5 * world_prev_translation.z);
+			world_prev_scale = world_scale;
+			scene.GetModel(0).worldScale[0][0] = scene.GetModel(0).worldScale[1][1] = scene.GetModel(0).worldScale[2][2] = world_scale;
+		}
 
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			counter++;
+		//handle rotations in all directions
+		if (world_rotation.x != world_prev_rotation.x) {
+			scene.GetModel(0).WorldRotate(world_rotation.x - world_prev_rotation.x, { 1.0f,0.0f,0.0f });
+		}
+		if (world_rotation.y != world_prev_rotation.y) {
+			scene.GetModel(0).WorldRotate(world_rotation.y - world_prev_rotation.y, { 0.0f,1.0f,0.0f });
+		}
+		if (world_rotation.z != world_prev_rotation.z) {
+			scene.GetModel(0).WorldRotate(world_rotation.z - world_prev_rotation.z, { 0.0f,0.0f,1.0f });
+		}
+		world_prev_scale = world_scale;
+		world_prev_translation = world_translation;
+		world_prev_rotation = world_rotation;
+		ImGui::ColorEdit3("clear color", (float*)&clear_color);  
+		if (ImGui::Button("Reset Transformation"))
+		{
+			local_prev_translation = local_translation = glm::vec3{ 0,0,0 };
+			local_prev_rotation = local_rotation = glm::vec3{ 0,0,0 };
+			local_prev_scale = local_scale = 1.f;
+			world_prev_translation = world_translation = glm::vec3{ 0,0,0 };
+			world_prev_rotation = world_rotation = glm::vec3{ 0,0,0 };
+			world_prev_scale = world_scale = 1.f;
+			scene.GetModel(0).ResetTransformations();
+		}
 		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter);
-
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
 	}
 
-	// 3. Show another simple window.
+	// Show another simple window.
 	if (show_another_window)
 	{
 		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
@@ -246,219 +346,64 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			show_another_window = false;
 		ImGui::End();
 	}
-	//Task - GUI Window
-    {
-        static glm::mat4 local_scale = {
-                            glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                            glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                            glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                            glm::vec4(0.0f,0.0f,0.0f,1.0f)
-        };
-        static glm::mat4 local_translate = {
-                                glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                                glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                                glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                                glm::vec4(0.0f,0.0f,0.0f,1.0f)
-        };
-        static glm::mat4 local_rotate = {
-                                glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                                glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                                glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                                glm::vec4(0.0f,0.0f,0.0f,1.0f)
-        };
-        static glm::mat4 world_scale = {
-                                glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                                glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                                glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                                glm::vec4(0.0f,0.0f,0.0f,1.0f)
-        };
-        static glm::mat4 world_translate = {
-                                glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                                glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                                glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                                glm::vec4(0.0f,0.0f,0.0f,1.0f)
-        };
-        static glm::mat4 world_rotate = {
-                                glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                                glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                                glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                                glm::vec4(0.0f,0.0f,0.0f,1.0f)
-        };
-        static bool mode = true;
-        static float localscale[] = { 0.0f, 0.0f };
-        static float worldscale[] = { 0.0f, 0.0f };
-        static float localtranslate[] = { 0.0f, 0.0f };
-        static float worldtranslate[] = { 0.0f, 0.0f };
-        static float local_x = 0.0f;
-        static float local_y = 0.0f;
-        static float local_Z = 0.0f;
-        static float world_x = 0.0f;
-        static float world_y = 0.0f;
-        static float world_z = 0.0f;
-        static glm::vec3 color(0.0f, 0.0f, 0.0f);
-        ImGui::Begin("Edit Model");    
-        ImGui::Text("User Transformation control");
-        if (ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_None))
-        {
-            if (ImGui::BeginTabItem("Local-Transform"))
-            {
-                mode = true;
-                ImGui::SliderFloat("scale-x", &localscale[0], -1.0f, 1.0f);
-                ImGui::SliderFloat("scale-y", &localscale[1], -1.0f, 1.0f);
-                local_scale = {
-                        glm::vec4(localscale[0] + 1,0.0f,0.0f,0.0f),
-                        glm::vec4(0.0f,localscale[1] + 1,0.0f,0.0f),
-                        glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                        glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                };
-                ImGui::SliderFloat("Translate-x", &localtranslate[0], -1.0f, 1.0f);
-                ImGui::SliderFloat("Translate-y", &localtranslate[1], -1.0f, 1.0f);
-                local_translate = {
-                        glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                        glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                        glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                        glm::vec4(localtranslate[0] * 500,localtranslate[1] * 350,0.0f,1.0f)
-                };
-                ImGui::SliderFloat("Rotate-x", &local_x, 0, 2 * M_PI);
-                ImGui::SliderFloat("Rotate-y", &local_y, 0, 2 * M_PI);
-                ImGui::SliderFloat("Rotate-z", &local_Z, 0, 2 * M_PI);
-                glm::mat4 rotate_x_mat = {
-                glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                glm::vec4(0.0f,cos(local_x),sin(local_x),0.0f),
-                glm::vec4(0.0f,-sin(local_x),cos(local_x),0.0f),
-                glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                };
-                glm::mat4 rotate_y_mat = {
-                glm::vec4(cos(local_y),0.0f,sin(local_y),0.0f),
-                glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                glm::vec4(-sin(local_y),0.0f,cos(local_y),0.0f),
-                glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                };
-                glm::mat4 rotate_z_mat = {
-                glm::vec4(cos(local_Z),sin(local_Z),0.0f,0.0f),
-                glm::vec4(-sin(local_Z),cos(local_Z),0.0f,0.0f),
-                glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                };
-                local_rotate = rotate_z_mat * rotate_y_mat * rotate_x_mat;
-                if (ImGui::Button("Reset")) {
 
-                    local_scale = {
-                                             glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                                             glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                                             glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                                             glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                    };
-                    local_translate = {
-                                            glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                                            glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                                            glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                                            glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                    };
-                    local_rotate = {
-                                            glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                                            glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                                            glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                                            glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                    };
-                    localscale[0] = 0.0f; localscale[1] = 0.0f;
-                    localtranslate[0] = 0.0f; localtranslate[1] = 0.0f;
-                    local_x = 0.0f;
-                    local_y = 0.0f;
-                    local_Z = 0.0f;
-                }
-                ImGui::EndTabItem();
-            }
-            if (ImGui::BeginTabItem("World-Transform"))
-            {
-                mode = false;
-                ImGui::SliderFloat("scale-x", &worldscale[0], -1.0f, 1.0f);
-                ImGui::SliderFloat("scale-y", &worldscale[1], -1.0f, 1.0f);
-                world_scale = {
-                        glm::vec4(worldscale[0] + 1,0.0f,0.0f,0.0f),
-                        glm::vec4(0.0f,worldscale[1] + 1,0.0f,0.0f),
-                        glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                        glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                };
-                ImGui::SliderFloat("Translate-x", &worldtranslate[0], -1.0f, 1.0f);
-                ImGui::SliderFloat("Translate-y", &worldtranslate[1], -1.0f, 1.0f);
-                world_translate = {
-                        glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                        glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                        glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                        glm::vec4(worldtranslate[0] * 500,worldtranslate[1] * 350,0.0f,1.0f)
-                };
-                ImGui::SliderFloat("Rotate-x", &world_x, 0, 2 * M_PI);
-                ImGui::SliderFloat("Rotate-y", &world_y, 0, 2 * M_PI);
-                ImGui::SliderFloat("Rotate-z", &world_z, 0, 2 * M_PI);
-                glm::mat4 rotate_x_mat = {
-                glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                glm::vec4(0.0f,cos(world_x),sin(world_x),0.0f),
-                glm::vec4(0.0f,-sin(world_x),cos(world_x),0.0f),
-                glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                };
-                glm::mat4 rotate_y_mat = {
-                glm::vec4(cos(world_y),0.0f,sin(world_y),0.0f),
-                glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                glm::vec4(-sin(world_y),0.0f,cos(world_y),0.0f),
-                glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                };
-                glm::mat4 rotate_z_mat = {
-                glm::vec4(cos(world_z),sin(world_z),0.0f,0.0f),
-                glm::vec4(-sin(world_z),cos(world_z),0.0f,0.0f),
-                glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                };
-                world_rotate = rotate_z_mat * rotate_y_mat * rotate_x_mat;
-                if (ImGui::Button("Reset")) {
+	ImGui::SetNextWindowSize(ImVec2(350, 550));
+	ImGui::Begin("Camera Control:");
+	static int projection = 1;
+	ImGui::RadioButton("Orthographic", &projection, 1); ImGui::SameLine();
+	ImGui::RadioButton("Perspective", &projection, 2);
+	ImGui::SliderInt("right", &pRight, -5.0f, 5.0f);
+	ImGui::SliderInt("left", &pLeft, -5.0f, 5.0f);
+	ImGui::SliderInt("down", &bottom, -5, 5);
+	ImGui::SliderInt("up", &top, -5, 5);
+	ImGui::SliderFloat("near", &pNear, -1.00f, 100.0f);
+	ImGui::SliderFloat("far", &pFar, -100.0f, 100.0f);
 
-                    world_scale = {
-                                             glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                                             glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                                             glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                                             glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                    };
-                    world_translate = {
-                                            glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                                            glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                                            glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                                            glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                    };
-                    world_rotate = {
-                                            glm::vec4(1.0f,0.0f,0.0f,0.0f),
-                                            glm::vec4(0.0f,1.0f,0.0f,0.0f),
-                                            glm::vec4(0.0f,0.0f,1.0f,0.0f),
-                                            glm::vec4(0.0f,0.0f,0.0f,1.0f)
-                    };
-                    worldscale[0] = 0.0f; worldscale[1] = 0.0f;
-                    worldtranslate[0] = 0.0f; worldtranslate[1] = 0.0f;
-                    world_x = 0.0f;
-                    world_y = 0.0f;
-                    world_z = 0.0f;
-                }
-                ImGui::EndTabItem();
-            }
-            ImGui::EndTabBar();
-        }
-        ImGui::ColorEdit3("color", (float*)&color);
-        if (scene.GetModelCount() > 0) 
-        {
-            MeshModel& model = scene.GetActiveModel();
-            model.SetIsLocal(mode);
-            model.SetColor(color);
-            if (mode == true) //Local 
-            {
-                model.SetLocalScale(local_scale);
-                model.SetLocalTranslate(local_translate);
-                model.SetLocalRotate(local_rotate);
-            }
-        	if (mode == false) // World
-            {
-                model.SetWorldScale(world_scale);
-                model.SetWorldTransform(world_translate);
-                model.SetWorldRotate(world_rotate);
-            }
-        }
-        ImGui::End();
-    }
+	if (projection == 1 && scene.GetModelCount())
+	{
+		scene.GetActiveCamera().SetOrthographicProjection(pLeft, pRight, bottom, top, pNear, pFar);
+	}
+	if (projection == 2 && scene.GetModelCount())
+	{
+
+		ImGui::InputFloat("fovy", &fovy, 0.01f, 1.0f, "%.2f");
+		float aspectRatio = (pRight - pLeft) / (top - bottom);
+		scene.GetActiveCamera().SetPerspectiveProjection(glm::radians(fovy), aspectRatio, pNear, pFar);
+	}
+
+
+	ImGui::Checkbox("Draw Bounding Box", &is_boundingBox);
+	scene.draw_box = is_boundingBox;
+
+	ImGui::Checkbox("Draw Normals", &is_normals);
+	scene.draw_normals = is_normals;
+
+	static bool DrawFaceNormals = false;
+	ImGui::Checkbox("Draw Face Normals", &DrawFaceNormals);
+	scene.draw_face_normals = DrawFaceNormals;
+
+	ImGui::Text("           ");
+	ImGui::Text("Camera LookAt:");
+
+	if (ImGui::Button("Camera LookAt Reset"))
+	{
+		eye = { 0,0,2 };
+		at = { 0,0,0 };
+		up = { 0,1,0 };
+	}
+	ImGui::SliderFloat("Eye-x", &eye.x, -10, 10);
+	ImGui::SliderFloat("Eye-y", &eye.y, -10, 10);
+	ImGui::SliderFloat("Eye-z", &eye.z, -10, 10);
+	ImGui::SliderFloat("At-x", &at.x, -10, 10);
+	ImGui::SliderFloat("At-y", &at.y, -10, 10);
+	ImGui::SliderFloat("At-z", &at.z, -10, 10);
+	ImGui::InputFloat3("Up", &up.x);
+	scene.GetActiveCamera().SetCameraLookAt(eye, at, up);
+	ImGui::Checkbox("Draw World axes", &world_axes);
+	ImGui::Checkbox("Draw Local axes", &local_axes);
+	if (scene.GetModelCount()) {
+		scene.GetModel(0).worldAxes = world_axes;
+		scene.GetModel(0).localAxes = local_axes;
+	}
+	ImGui::End();
 }

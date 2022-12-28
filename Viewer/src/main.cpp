@@ -278,8 +278,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::SliderFloat3("Translation", &local_translation.x, -1.5f, 1.5f);
 		ImGui::SliderFloat3("Rotation", &local_rotation.x, -180.0f, 180.0f);
 		ImGui::SliderFloat("Scale", &local_scale, 0.5f, 1.5f);
-		ImGui::Text("        ");
-		ImGui::Text("       World Transformations  ");
+		ImGui::Text("World Transformations  ");
 		ImGui::Text("      X           Y           Z  ");
 
 		ImGui::SliderFloat3("Translation", &world_translation.x, -1.5f, 1.5f);
@@ -307,8 +306,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			world_prev_scale = world_scale;
 			scene.GetModel(0).worldScale[0][0] = scene.GetModel(0).worldScale[1][1] = scene.GetModel(0).worldScale[2][2] = world_scale;
 		}
-
-		//handle rotations in all directions
 		if (world_rotation.x != world_prev_rotation.x) {
 			scene.GetModel(0).WorldRotate(world_rotation.x - world_prev_rotation.x, { 1.0f,0.0f,0.0f });
 		}
@@ -352,12 +349,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	static int projection = 1;
 	ImGui::RadioButton("Orthographic", &projection, 1); ImGui::SameLine();
 	ImGui::RadioButton("Perspective", &projection, 2);
-	ImGui::SliderInt("right", &pRight, -5.0f, 5.0f);
-	ImGui::SliderInt("left", &pLeft, -5.0f, 5.0f);
-	ImGui::SliderInt("down", &bottom, -5, 5);
-	ImGui::SliderInt("up", &top, -5, 5);
-	ImGui::SliderFloat("near", &pNear, -1.00f, 100.0f);
-	ImGui::SliderFloat("far", &pFar, -100.0f, 100.0f);
+	ImGui::SliderInt("Right", &pRight, -5.0f, 5.0f);
+	ImGui::SliderInt("Left", &pLeft, -5.0f, 5.0f);
+	ImGui::SliderInt("Down", &bottom, -5, 5);
+	ImGui::SliderInt("Up", &top, -5, 5);
+	ImGui::SliderFloat("Near", &pNear, -1.00f, 100.0f);
+	ImGui::SliderFloat("Far", &pFar, -100.0f, 100.0f);
 
 	if (projection == 1 && scene.GetModelCount())
 	{
@@ -370,8 +367,29 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		float aspectRatio = (pRight - pLeft) / (top - bottom);
 		scene.GetActiveCamera().SetPerspectiveProjection(glm::radians(fovy), aspectRatio, pNear, pFar);
 	}
+	//ImGui::Text("           ");
+	ImGui::Text("Camera LookAt:");
 
-
+	ImGui::SliderFloat("Eye-x", &eye.x, -10, 10);
+	ImGui::SliderFloat("Eye-y", &eye.y, -10, 10);
+	ImGui::SliderFloat("Eye-z", &eye.z, -10, 10);
+	ImGui::SliderFloat("At-x", &at.x, -10, 10);
+	ImGui::SliderFloat("At-y", &at.y, -10, 10);
+	ImGui::SliderFloat("At-z", &at.z, -10, 10);
+	ImGui::InputFloat3("Up", &up.x);
+	scene.GetActiveCamera().SetCameraLookAt(eye, at, up);
+	if (ImGui::Button("Camera LookAt Reset"))
+	{
+		eye = { 0,0,2 };
+		at = { 0,0,0 };
+		up = { 0,1,0 };
+	}
+	ImGui::Checkbox("Draw Local axes", &local_axes);
+	ImGui::Checkbox("Draw World axes", &world_axes);
+	if (scene.GetModelCount()) {
+		scene.GetModel(0).worldAxes = world_axes;
+		scene.GetModel(0).localAxes = local_axes;
+	}
 	ImGui::Checkbox("Draw Bounding Box", &is_boundingBox);
 	scene.draw_box = is_boundingBox;
 
@@ -381,29 +399,5 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	static bool DrawFaceNormals = false;
 	ImGui::Checkbox("Draw Face Normals", &DrawFaceNormals);
 	scene.draw_face_normals = DrawFaceNormals;
-
-	ImGui::Text("           ");
-	ImGui::Text("Camera LookAt:");
-
-	if (ImGui::Button("Camera LookAt Reset"))
-	{
-		eye = { 0,0,2 };
-		at = { 0,0,0 };
-		up = { 0,1,0 };
-	}
-	ImGui::SliderFloat("Eye-x", &eye.x, -10, 10);
-	ImGui::SliderFloat("Eye-y", &eye.y, -10, 10);
-	ImGui::SliderFloat("Eye-z", &eye.z, -10, 10);
-	ImGui::SliderFloat("At-x", &at.x, -10, 10);
-	ImGui::SliderFloat("At-y", &at.y, -10, 10);
-	ImGui::SliderFloat("At-z", &at.z, -10, 10);
-	ImGui::InputFloat3("Up", &up.x);
-	scene.GetActiveCamera().SetCameraLookAt(eye, at, up);
-	ImGui::Checkbox("Draw World axes", &world_axes);
-	ImGui::Checkbox("Draw Local axes", &local_axes);
-	if (scene.GetModelCount()) {
-		scene.GetModel(0).worldAxes = world_axes;
-		scene.GetModel(0).localAxes = local_axes;
-	}
 	ImGui::End();
 }

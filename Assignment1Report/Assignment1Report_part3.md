@@ -42,11 +42,20 @@ perspective:
 <b>7.</b> Sanity check for the vertex normals and face normals.
 Picture of face normals:
 
+![image](https://user-images.githubusercontent.com/95486750/209872991-55a97c45-4a02-4709-877a-b2edee57eee5.png)
+
 After translation and rotation:
+
+![image](https://user-images.githubusercontent.com/95486750/209873079-2b24bf93-6073-49c8-b19a-20f92e6fe2b3.png)
+
 
 Picture of vertex normals:
 
+![image](https://user-images.githubusercontent.com/95486750/209873292-5d0a290a-238f-4a92-9bdb-38bb0e60c95d.png)
+
 After translation and rotation:
+
+![image](https://user-images.githubusercontent.com/95486750/209873185-06055e78-9b3c-45fa-a150-66f0c0286b77.png)
 
 
 <b>8.</b>  Orthographic projection:

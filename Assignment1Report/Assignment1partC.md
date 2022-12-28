@@ -1,5 +1,5 @@
 # Assignment 1 - Part 3
-*Aya Mahagna ID: 314774639*
+<b> Aya Mahagna ID: 314774639 </b> 
 
 <b>1.</b> I've removed the centering trick that was used in Assignment 1 part B, I also implemented orthographic and perspective projection with adjustable view volume (that can be changed using sliders) and I used Canonical view as defaul, and Near and Far sliders have no effect in this assignment.
 
@@ -48,18 +48,27 @@ Picture of vertex normals:
 
 After translation and rotation:
 
+
 <b>8.</b>  Orthographic projection:
+
 
 ![Orthographic](https://user-images.githubusercontent.com/95486750/209871150-dbc26a44-3533-4f87-9644-d6601af4b1aa.png)
 
+
 ![Orthographic_BoundingBox](https://user-images.githubusercontent.com/95486750/209871165-011d7ef1-ab57-489c-9937-0a1bbc329bdb.png)
 
-Perspective projectio:
+
+Perspective projection:
+
+
 ![Perspective](https://user-images.githubusercontent.com/95486750/209871179-2728ed68-dcc9-4b11-a363-c08954e1bd75.png)
+
 
 ![Perspective_BoundingBox](https://user-images.githubusercontent.com/95486750/209871205-b3d24632-7b3f-40b8-a22f-957d248f116e.png)
 
+
 <b>13.</b>
+
 ![image](https://user-images.githubusercontent.com/95486750/209870851-9ba578f8-9902-4b30-a64f-d8d2a6766357.png)
 
 <b> 14. </b> Additional features:

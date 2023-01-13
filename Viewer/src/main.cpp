@@ -12,16 +12,7 @@
 #include "Utils.h"
 #include <iostream>
 
-static int top = 1.0f;
-static int bottom = -1.0f;
-static int pLeft = -1.0;
-static int pRight = 1.0f;
-static float pNear = 0.1f;
-static float pFar = 1000.0f;
-static float fovy = 90.0f;
-static glm::vec3 eye = { 0,0,2 };
-static glm::vec3 at = { 0,0,0 };
-static glm::vec3 up = { 0,1,0 };
+
 bool local_axes, world_axes, is_ortho, is_boundingBox, is_normals = false;
 int Orthographic = 0;
 bool show_demo_window = false;
@@ -348,46 +339,45 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			show_another_window = false;
 		ImGui::End();
 	}
-
+	Camera& camera = scene.GetActiveCamera();
 	ImGui::SetNextWindowSize(ImVec2(350, 550));
 	ImGui::Begin("Camera Control:");
 	static int projection = 1;
 	ImGui::RadioButton("Orthographic", &projection, 1); ImGui::SameLine();
 	ImGui::RadioButton("Perspective", &projection, 2);
-	ImGui::SliderInt("Right", &pRight, -5.0f, 5.0f);
-	ImGui::SliderInt("Left", &pLeft, -5.0f, 5.0f);
-	ImGui::SliderInt("Down", &bottom, -5, 5);
-	ImGui::SliderInt("Up", &top, -5, 5);
-	ImGui::SliderFloat("Near", &pNear, -1.00f, 100.0f);
-	ImGui::SliderFloat("Far", &pFar, -100.0f, 100.0f);
+	ImGui::SliderInt("Right", &camera.right, -5.0f, 5.0f);
+	ImGui::SliderInt("Left", &camera.left, -5.0f, 5.0f);
+	ImGui::SliderInt("Down", &camera.bottom, -5, 5);
+	ImGui::SliderInt("Up", &camera.top, -5, 5);
+	ImGui::SliderFloat("Near", &camera.zNear, -1.00f, 100.0f);
+	ImGui::SliderFloat("Far", &camera.zFar, -100.0f, 100.0f);
 
 	if (projection == 1 && scene.GetModelCount())
 	{
-		scene.GetActiveCamera().SetOrthographicProjection(pLeft, pRight, bottom, top, pNear, pFar);
+		scene.GetActiveCamera().SetOrthographicProjection(camera.left, camera.right, camera.bottom, camera.top, camera.zNear, camera.zFar);
 	}
 	if (projection == 2 && scene.GetModelCount())
 	{
-
-		ImGui::InputFloat("fovy", &fovy, 0.01f, 1.0f, "%.2f");
-		float aspectRatio = (pRight - pLeft) / (top - bottom);
-		scene.GetActiveCamera().SetPerspectiveProjection(glm::radians(fovy), aspectRatio, pNear, pFar);
+		ImGui::InputFloat("Fovy", &camera.fovy, 0.01f, 1.0f, "%.2f");
+		float aspectRatio = (camera.right - camera.left) / (camera.top - camera.bottom);
+		scene.GetActiveCamera().SetPerspectiveProjection(glm::radians(camera.fovy), aspectRatio,camera.zNear, camera.zFar);
 	}
 	//ImGui::Text("           ");
 	ImGui::Text("Camera LookAt:");
 
-	ImGui::SliderFloat("Eye-x", &eye.x, -10, 10);
-	ImGui::SliderFloat("Eye-y", &eye.y, -10, 10);
-	ImGui::SliderFloat("Eye-z", &eye.z, -10, 10);
-	ImGui::SliderFloat("At-x", &at.x, -10, 10);
-	ImGui::SliderFloat("At-y", &at.y, -10, 10);
-	ImGui::SliderFloat("At-z", &at.z, -10, 10);
-	ImGui::InputFloat3("Up", &up.x);
-	scene.GetActiveCamera().SetCameraLookAt(eye, at, up);
+	ImGui::SliderFloat("Eye-x", &camera.eye.x, -10, 10);
+	ImGui::SliderFloat("Eye-y", &camera.eye.y, -10, 10);
+	ImGui::SliderFloat("Eye-z", &camera.eye.z, -10, 10);
+	ImGui::SliderFloat("At-x", &camera.at.x, -10, 10);
+	ImGui::SliderFloat("At-y", &camera.at.y, -10, 10);
+	ImGui::SliderFloat("At-z", &camera.at.z, -10, 10);
+	ImGui::InputFloat3("Up", &camera.up.x);
+	scene.GetActiveCamera().SetCameraLookAt(camera.eye, camera.at, camera.up);
 	if (ImGui::Button("Camera LookAt Reset"))
 	{
-		eye = { 0,0,2 };
-		at = { 0,0,0 };
-		up = { 0,1,0 };
+		camera.eye = { 0,0,2 };
+		camera.at = { 0,0,0 };
+		camera.up = { 0,1,0 };
 	}
 	ImGui::Checkbox("Draw Local axes", &local_axes);
 	ImGui::Checkbox("Draw World axes", &world_axes);
@@ -404,5 +394,11 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	static bool DrawFaceNormals = false;
 	ImGui::Checkbox("Draw Face Normals", &DrawFaceNormals);
 	scene.draw_face_normals = DrawFaceNormals;
+	ImGui::Checkbox("Paint Triangles", &scene.paint_triangles);
+	ImGui::Checkbox("Gray Scale", &scene.gray_scale);
+	ImGui::Checkbox("Color With Buffer", &scene.color_with_buffer);
+	if (scene.paint_triangles) { scene.gray_scale = false; scene.color_with_buffer = false; }
+	if (scene.gray_scale) { scene.paint_triangles; scene.color_with_buffer = false; }
+	if (scene.color_with_buffer) { scene.gray_scale = false; scene.paint_triangles = false; }
 	ImGui::End();
 }

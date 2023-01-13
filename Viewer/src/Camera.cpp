@@ -4,6 +4,20 @@ Camera::Camera()
 {
     view_transformation = glm::mat4x4(1.0f);
     projection_transformation = glm::mat4x4(1.0f);
+    right = 1;
+    left = -1;
+    top = 1.0f;
+    bottom = -1.0f;
+    zNear = 0.0f;
+    zFar = 1.0f;
+    fovy = 45.0f;
+    aspectRatio = 1.0;
+    eye = glm::vec3(0.0f, 0.0f, 2.0f);
+    at = glm::vec3(0.0f, 0.0f, -1.0f);
+    up = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::mat4x4 proj = glm::mat4x4(1.0f);
+    glm::mat4x4 viewTransformation = glm::mat4x4(1.0f);
+    glm::mat4x4 test = glm::mat4x4(1.0f);
 }
 
 Camera::~Camera()

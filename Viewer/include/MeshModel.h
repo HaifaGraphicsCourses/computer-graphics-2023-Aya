@@ -24,7 +24,7 @@ public:
 	void ResetTransformations();
 	float GetNormal(int index, int coordinate);
 	std::vector<glm::vec3> GetNormals();
-	int getVerticesSize() const {
+	int getVerticesSize()  {
 		return vertices.size();
 	}
 	glm::mat4x4 GetTransform()

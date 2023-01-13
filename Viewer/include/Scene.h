@@ -30,6 +30,10 @@ public:
 	bool draw_box;
 	bool draw_normals;
 	bool draw_face_normals;
+	bool bounding_rectangles;
+	bool paint_triangles;
+	bool gray_scale;
+	bool color_with_buffer;
 private:
 	vector<shared_ptr<MeshModel>> mesh_models;
 	vector<shared_ptr<Camera>> cameras;

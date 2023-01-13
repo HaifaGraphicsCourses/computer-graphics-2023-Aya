@@ -12,6 +12,17 @@ public:
 	const glm::mat4x4& GetViewTransformation() const;
 	void SetOrthographicProjection(float left, float right, float bottom, float top, float zNear, float zFar);
 	void SetPerspectiveProjection( float fovy,  float aspectRatio,  float zNear,  float zFar);
+	int right, left;
+	int top, bottom;
+	float zNear, zFar;
+	float fovy;
+	float aspectRatio;
+	glm::vec3 eye;
+	glm::vec3 at;
+	glm::vec3 up;
+	glm::mat4x4 viewTransformation;
+	glm::mat4x4 test;
+	glm::mat4x4 proj;
 private:
 	glm::mat4x4 view_transformation;
 	glm::mat4x4 projection_transformation;

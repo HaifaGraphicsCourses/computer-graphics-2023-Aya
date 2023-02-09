@@ -5,6 +5,7 @@
 Scene::Scene() :
 	active_camera_index(0),
 	active_model_index(0),
+	active_light_index(0),
     draw_box(false),
 	draw_normals(false),
 	draw_face_normals(false),
@@ -13,7 +14,18 @@ Scene::Scene() :
 	gray_scale(false),
 	color_with_buffer(false)
 {
-
+	ambient_light = false;
+	lighting = false;
+	diffuse_light = false;
+	reflection_vector = false;
+	specular_light = false;
+	flat_shading = false;
+	phong = false;
+	fog = false;
+	more_than_1_light = false;
+	blur = false;
+	lights[0] = new Light();
+	lights[1] = new Light();
 }
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& mesh_model)
@@ -74,4 +86,24 @@ void Scene::SetActiveModelIndex(int index)
 int Scene::GetActiveModelIndex() const
 {
 	return active_model_index;
+}
+void Scene::AddLight(Light* light)
+{
+	//lights.push_back(light);
+}
+Light& Scene::GetLight(int index)
+{
+	return *lights[index];
+}
+void Scene::SetActiveLightIndex(int index)
+{
+	active_light_index = index;
+}
+int Scene::GetActiveLightIndex() const
+{
+	return active_light_index;
+}
+Light& Scene::GetActiveLight()
+{
+	return *lights[active_light_index];
 }

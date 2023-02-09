@@ -10,10 +10,13 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	isLocal(true)
 {
 	localTransform = worldTransform = localTranslate = worldTranslate =localScale = worldScale = localRotate  = worldRotate = glm::mat4(1.0f);
-
 	modelColor = glm::vec3(0.0f, 0.0f, 0.0f);
 	worldAxes = false;
 	localAxes = false;
+	Ka = glm::vec3(0.0f, 0, 0);
+	Kd = glm::vec3(1, 0, 0);
+	Ks = glm::vec3(1.0f, 1, 1);
+
 	/*for (int j = 0; j < vertices.size(); j++) {
 		std::cout << "vertices " << j << "(X: " << vertices[j][0] << " ,Y: " << vertices[j][1] << " ,Z: " << vertices[j][2]<<")" << std::endl;
 	}
@@ -110,4 +113,10 @@ void MeshModel::ResetTransformations()
 	worldTranslate = glm::mat4(1.0f);
 	worldRotate = glm::mat4(1.0f);
 	worldScale = glm::mat4(1.0f);
+}
+glm::vec3 MeshModel::GetPosition()
+{
+	glm::mat4 hi = GetTransform();
+	glm::vec3 position = { GetTransform()[3].x,GetTransform()[3].y ,GetTransform()[3].z };
+	return position;
 }

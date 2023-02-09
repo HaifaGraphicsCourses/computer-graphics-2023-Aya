@@ -8,8 +8,8 @@ public:
 	Camera();
 	virtual ~Camera();
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
-	const glm::mat4x4& GetProjectionTransformation() const;
-	const glm::mat4x4& GetViewTransformation() const;
+	const glm::mat4x4& GetProjectionTransformation();
+	const glm::mat4x4& GetViewTransformation();
 	void SetOrthographicProjection(float left, float right, float bottom, float top, float zNear, float zFar);
 	void SetPerspectiveProjection( float fovy,  float aspectRatio,  float zNear,  float zFar);
 	int right, left;

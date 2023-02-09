@@ -39,6 +39,16 @@ private:
 	float CalculateArea(glm::vec3& q1, glm::vec3& q2, glm::vec3& q3);
 	void Set_z(int i, int j, float z);
 	float Get_z(int i, int j);
+	void Set_ColorBuffer(int i, int j, glm::vec3 v);
+	glm::vec3 Get_ColorBuffer(int i, int j);
+	void DrawLight(Scene scene, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, int faceNumber);
+	glm::vec3 compute_normal(glm::vec3 vertex1, glm::vec3 vertex2, glm::vec3 vertex3);
+	glm::vec3 InterpolatedVec(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec2 position, glm::vec3 normal1, glm::vec3 normal2, glm::vec3 normal3);
+	void CreateBoolArray(bool** bool_array);
+	void viewport(glm::vec3& p1, float height);
+	void undo_viewport(glm::vec3& p1, glm::vec3& p2, glm::vec3& p3, float height);
+	void undo_viewport(glm::vec3& p1, float height);
+
 	float* color_buffer;
 	float* z_buffer;
 	int viewport_width;
@@ -52,6 +62,4 @@ private:
 	bool paint_triangle;
 	bool gray_scale;
 	bool color_with_buffer;
-
-
 };

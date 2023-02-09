@@ -35,7 +35,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char** argv)
 {
-	int windowWidth = 1000, windowHeight = 1000;
+	int windowWidth = 1900, windowHeight = 1100;
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
 	if (!window)
 		return 1;
@@ -121,9 +121,9 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	if (frameBufferWidth != renderer.GetViewportWidth() || frameBufferHeight != renderer.GetViewportHeight())
 	{
 		// TODO: Set new aspect ratio
-		if (scene.GetCameraCount() != 0) {
+	/*	if (scene.GetCameraCount() != 0) {
 			renderer.SetSize(frameBufferWidth, frameBufferHeight);
-		}
+		}*/
 	}
 
 	if (!io.WantCaptureKeyboard)
@@ -400,5 +400,83 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	if (scene.paint_triangles) { scene.gray_scale = false; scene.color_with_buffer = false; }
 	if (scene.gray_scale) { scene.paint_triangles; scene.color_with_buffer = false; }
 	if (scene.color_with_buffer) { scene.gray_scale = false; scene.paint_triangles = false; }
+	ImGui::End();
+
+	ImGui::SetNextWindowSize(ImVec2(390, 450));
+	ImGui::Begin("Lights Controller");
+	static int LightCount = 0;
+	static char* lights[5] = { "1","2","3","4","5" };
+	ImGui::Text("Point lights = %d", LightCount);
+	if (ImGui::Button("Add point lights") && (LightCount < 3))
+	{
+		LightCount++;
+
+	}
+	if (LightCount)
+		scene.lighting = true;
+
+	if (LightCount == 1) {
+		ImGui::Combo("Choose Light", &LightCount, lights, LightCount);
+		ImGui::Text("Light RGB");
+		ImGui::ColorEdit3("Ambient", (float*)&scene.GetLight(0).AmbientColor);
+		ImGui::ColorEdit3("Diffuse", (float*)&scene.GetLight(0).DiffuseColor);
+		ImGui::ColorEdit3("Specular", (float*)&scene.GetLight(0).SpecularColor);
+		ImGui::SliderFloat3("Light 1 Translation", &scene.GetLight(0).Translation[3].x, -5.0f, 5.0f);
+	}
+
+	if (LightCount == 2) {
+		static int light_num = 1;
+		ImGui::RadioButton("Light 1", &light_num, 1); ImGui::SameLine();
+		ImGui::RadioButton("Light 2", &light_num, 2);
+		scene.more_than_1_light = true;
+
+		if (light_num == 1) {
+			ImGui::Combo("Choose Light", &LightCount, lights, LightCount);
+			ImGui::Text("Light RGB");
+			ImGui::ColorEdit3("Ambient", (float*)&scene.GetLight(0).AmbientColor);
+			ImGui::ColorEdit3("Diffuse", (float*)&scene.GetLight(0).DiffuseColor);
+			ImGui::ColorEdit3("Specular", (float*)&scene.GetLight(0).SpecularColor);
+			ImGui::SliderFloat3("Light 1 Translation", &scene.GetLight(0).Translation[3].x, -5.0f, 5.0f);
+		}
+		else {
+
+			ImGui::Combo("Choose Light", &LightCount, lights, LightCount);
+			ImGui::Text("Light RGB");
+			ImGui::ColorEdit3("Ambient", (float*)&scene.GetLight(1).AmbientColor);
+			ImGui::ColorEdit3("Diffuse", (float*)&scene.GetLight(1).DiffuseColor);
+			ImGui::ColorEdit3("Specular", (float*)&scene.GetLight(1).SpecularColor);
+			ImGui::SliderFloat3("Light 2 Translation", &scene.GetLight(1).Translation[3].x, -5.0f, 5.0f);
+		}
+
+
+	}
+
+
+
+
+
+	if (scene.GetModelCount())
+	{
+		ImGui::Text("Model RGB");
+		ImGui::ColorEdit3("Model Ambient", (float*)&scene.GetModel(0).Ka);
+		ImGui::ColorEdit3("Model Diffuse", (float*)&scene.GetModel(0).Kd);
+		ImGui::ColorEdit3("Model Specular", (float*)&scene.GetModel(0).Ks);
+	}
+
+	ImGui::Checkbox("Ambient Shading", &scene.ambient_light); ImGui::SameLine();
+	ImGui::Checkbox("Diffuse Lighting", &scene.diffuse_light);
+	ImGui::Checkbox("Specular Light", &scene.specular_light);
+
+	ImGui::Checkbox("Reflection Vectors", &scene.reflection_vector);
+	ImGui::Checkbox("Fog", &scene.fog);
+	ImGui::Checkbox("Blur", &scene.blur);
+
+	static int shading = 0;
+	ImGui::RadioButton("Flat Shading", &shading, 1); 
+
+	if (shading == 1) { scene.flat_shading = true; scene.phong = false; }
+	if (shading == 2) { scene.flat_shading = false; scene.phong = true; }
+
+
 	ImGui::End();
 }

@@ -289,6 +289,10 @@ void Renderer::DrawMesh(Scene scene, int j)
 
 		glm::vec3 rectangle_color = colors[i % number_of_colors];
 		DrawTriangle(q1, q2, q3, black, scene.bounding_rectangles, rectangle_color, scene);
+
+		if (scene.lighting)
+			DrawLight(scene, q1, q2, q3, i);
+
 	}
 }
 
@@ -312,93 +316,103 @@ void Renderer::DrawMesh(Scene scene, int j)
 
 	void Renderer::DrawTriangle(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 color, bool bounding_rectangles, glm::vec3 rectangle_color, Scene scene)
 	{
-
 		int* dims = DrawBoundingRectangleForTriangles(p1, p2, p3, rectangle_color, bounding_rectangles);
 
-		if (paint_triangle || gray_scale || color_with_buffer)
-		{
+		if (paint_triangle || gray_scale || color_with_buffer || scene.lighting)
 			paintFlag = true;
-			for (int i = offset_x - 1; i < dims[0] + offset_x + 1; i++)
-				for (int j = offset_y - 1; j < dims[1] + offset_y + 1; j++)
-					if ((i <= viewport_width) && (j <= viewport_height) && i >= 0 && j >= 0)
-						bool_array[i][j] = false;
-		}
+		for (int i = offset_x - 1; i < dims[0] + offset_x + 1; i++)
+			for (int j = offset_y - 1; j < dims[1] + offset_y + 1; j++)
+				if ((i < viewport_width) && (j < viewport_height) && i >= 0 && j >= 0)
+					bool_array[i][j] = false;
+
 		DrawLine(p1, p2, color);
 		DrawLine(p1, p3, color);
 		DrawLine(p2, p3, color);
-		if (paint_triangle || gray_scale || color_with_buffer)
+
+
+		for (int i = offset_x; i <= dims[0] + offset_x; i++)
 		{
-			for (int i = offset_x; i <= dims[0] + offset_x; i++)
+			bool beginFlag = false;
+			int begin = 0;
+			int end = 0;
+			for (int j = offset_y; j <= dims[1] + offset_y; j++)
 			{
-				bool beginFlag = false;
-				int begin = 1;
-				int end = 1;
-				for (int j = offset_y; j <= dims[1] + offset_y; j++)
+				if ((i < viewport_width) && (j < viewport_height) && i >= 0 && j >= 0 && bool_array[i][j] == true && !beginFlag)//if we reached an egdle
 				{
-					if ((i <= viewport_width) && (j <= viewport_height) && i > 0 && j > 0 && bool_array[i][j] == true && !beginFlag)//if we reached an egdle
-					{
-						begin = j;
-						end = j;
-						beginFlag = true;
-					}
-					if ((i <= viewport_width) && (j <= viewport_height) && i > 0 && j > 0 && bool_array[i][j] == true && beginFlag)
-					{
-						end = j;
-					}
+					begin = j;
+					end = j;
+					beginFlag = true;
+				}
+				if ((i < viewport_width) && (j < viewport_height) && i >= 0 && j >= 0 && bool_array[i][j] == true && beginFlag)
+				{
+					end = j;
+				}
+			}
+
+			for (int j = begin; j <= end; j++) {
+
+				if ((i < viewport_width) && (j < viewport_height) && i >= 0 && j >= 0)
+				{
+					bool_array[i][j] = true;
 				}
 
-				for (int j = begin; j <= end; j++) {
-					if ((i <= viewport_width) && (j <= viewport_height) && i > 0 && j > 0)
+				if ((i < viewport_width) && (j < viewport_height) && i >= 0 && j >= 0)
+				{
+					bool_array[i][j] = false;
+
+					float z = Find_z(i, j, p1, p2, p3);
+					float cameraDistance = scene.GetCamera(0).eye.z;
+
+					if (z <= Get_z(i, j))
 					{
+						Set_z(i, j, z);
 						bool_array[i][j] = true;
 					}
-
-					if ((color_with_buffer || gray_scale) && (i <= viewport_width) && (j <= viewport_height) && i > 0 && j > 0)
-					{
-						bool_array[i][j] = false;
-						float z = Find_z(i, j, p1, p2, p3);
-						if (z <= Get_z(i, j))
-						{
-							Set_z(i, j, z);
-							bool_array[i][j] = true;
-						}
-					}
 				}
-
-				paintFlag = false;
-
 			}
 
-			PaintTriangle(dims[0], dims[1], rectangle_color, paint_triangle, gray_scale, color_with_buffer, scene.GetActiveCamera().zFar);
 
-			delete[] dims;
 		}
+
+
+
+		if (paint_triangle || gray_scale || color_with_buffer || scene.lighting)
+		{
+			paintFlag = false;
+			if (paint_triangle || gray_scale || color_with_buffer)
+				PaintTriangle(dims[0], dims[1], rectangle_color, paint_triangle, gray_scale, color_with_buffer, scene.GetActiveCamera().zFar);
+		}
+
+		delete[] dims;
 	}
+
 	void Renderer::PaintTriangle(int rows, int cols, glm::vec3 color, bool paint_triangle, bool gray_scale, bool color_with_buffer, float zFar)
 	{
-		zFar += 1;
-		zFar *= min(viewport_width, viewport_height);
-		for (int i = offset_x; i < rows + offset_x + 1; i++)
-			for (int j = offset_y; j < cols + offset_y + 1; j++)
-			{
-				if (paint_triangle && (i <= viewport_width) && i > 0 && j > 0 && (j <= viewport_height) && bool_array[i][j])
-					PutPixel(i, j, color);
-
-				if (gray_scale && (i <= viewport_width) && i > 0 && j > 0 && (j <= viewport_height) && bool_array[i][j])
+			zFar += 1;
+			zFar *= min(viewport_width, viewport_height);
+			for (int i = offset_x; i < rows + offset_x + 1; i++)
+				for (int j = offset_y; j < cols + offset_y + 1; j++)
 				{
-					float z = Get_z(i, j);
-					color = glm::vec3((1 - z / zFar), (1 - z / zFar), (1 - z / zFar));
-					PutPixel(i, j, color);
+					//if we want to fill the triangles with colors
+					if (paint_triangle && (i < viewport_width) && i >= 0 && j >= 0 && (j < viewport_height) && bool_array[i][j])
+						PutPixel(i, j, color);
+
+					//if gray scale
+					if (gray_scale && (i < viewport_width) && i >= 0 && j >= 0 && (j < viewport_height) && bool_array[i][j])
+					{
+						float z = Get_z(i, j);
+						color = glm::vec3((1 - z / zFar), (1 - z / zFar), (1 - z / zFar));
+						PutPixel(i, j, color);
+					}
+
+					//if color with depth
+					if (color_with_buffer && (i < viewport_width) && i >= 0 && j >= 0 && (j < viewport_height) && bool_array[i][j])
+					{
+						PutPixel(i, j, color);
+					}
 				}
+		}
 
-				if (color_with_buffer && (i <= viewport_width) && i > 0 && j > 0 && (j <= viewport_height) && bool_array[i][j])
-				{
-					PutPixel(i, j, color);
-				}
-
-
-			}
-	}
 
 	void Renderer::WorldCoordinates(Scene scene, int j)
 	{
@@ -467,8 +481,8 @@ void Renderer::DrawMesh(Scene scene, int j)
 		viewport(p1, p2, p3, min(viewport_height, viewport_width));
 
 		DrawLine(p1, q1, { 0,1,0 });
-		DrawLine(p2, q2, { 1,1,0 });
-		DrawLine(p3, q3, { 0,1,1 });
+		DrawLine(p2, q2, { 1,0,0 });
+		DrawLine(p3, q3, { 0,0,1 });
 	}
 
 	void Renderer::DrawBoundingBox(Scene scene, MeshModel model)
@@ -544,59 +558,38 @@ void Renderer::DrawMesh(Scene scene, int j)
 	{
 		for (int i = 0; i < model.GetFacesCount(); i++) {
 			Face face = model.GetFace(i);
-
-			//get index
 			int v_index1 = face.GetVertexIndex(0) - 1;
 			int v_index2 = face.GetVertexIndex(1) - 1;
 			int v_index3 = face.GetVertexIndex(2) - 1;
-
-			//get normal index
 			int vn_index1 = face.GetNormalIndex(0) - 1;
 			int vn_index2 = face.GetNormalIndex(1) - 1;
 			int vn_index3 = face.GetNormalIndex(2) - 1;
-
-			//get vertices
 			glm::vec4 vertex1 = { model.GetVertex(v_index1,0),model.GetVertex(v_index1,1) ,model.GetVertex(v_index1,2),1.0f };
 			glm::vec4 vertex2 = { model.GetVertex(v_index2,0),model.GetVertex(v_index2,1) ,model.GetVertex(v_index2,2),1.0f };
 			glm::vec4 vertex3 = { model.GetVertex(v_index3,0),model.GetVertex(v_index3,1) ,model.GetVertex(v_index3,2),1.0f };
-
-			//get normals
 			glm::vec4 normal1 = { model.GetNormal(vn_index1,0),model.GetNormal(vn_index1,1) ,model.GetNormal(vn_index1,2),1.0f };
 			glm::vec4 normal2 = { model.GetNormal(vn_index2,0),model.GetNormal(vn_index2,1) ,model.GetNormal(vn_index2,2),1.0f };
 			glm::vec4 normal3 = { model.GetNormal(vn_index3,0),model.GetNormal(vn_index3,1) ,model.GetNormal(vn_index3,2),1.0f };
-
-			//add the normal to vertex
 			normal1 = vertex1 + 0.05f * normal1;
 			normal2 = vertex2 + 0.05f * normal2;
 			normal3 = vertex3 + 0.05f * normal3;
-
 			normal1.w = 1.0f;
 			normal2.w = 1.0f;
 			normal3.w = 1.0f;
-
-			//apply transformations
 			normal1 = scene.GetActiveCamera().GetProjectionTransformation() * scene.GetActiveCamera().GetViewTransformation() * model.GetTransform() * normal1;
 			normal2 = scene.GetActiveCamera().GetProjectionTransformation() * scene.GetActiveCamera().GetViewTransformation() * model.GetTransform() * normal2;
 			normal3 = scene.GetActiveCamera().GetProjectionTransformation() * scene.GetActiveCamera().GetViewTransformation() * model.GetTransform() * normal3;
-
 			vertex1 = scene.GetActiveCamera().GetProjectionTransformation() * scene.GetActiveCamera().GetViewTransformation() * model.GetTransform() * vertex1;
 			vertex2 = scene.GetActiveCamera().GetProjectionTransformation() * scene.GetActiveCamera().GetViewTransformation() * model.GetTransform() * vertex2;
 			vertex3 = scene.GetActiveCamera().GetProjectionTransformation() * scene.GetActiveCamera().GetViewTransformation() * model.GetTransform() * vertex3;
-
-			//go to cartesian coordinates
 			glm::vec3 q1 = HomoToCartesian(normal1);
 			glm::vec3 q2 = HomoToCartesian(normal2);
 			glm::vec3 q3 = HomoToCartesian(normal3);
-
 			glm::vec3 p1 = HomoToCartesian(vertex1);
 			glm::vec3 p2 = HomoToCartesian(vertex2);
 			glm::vec3 p3 = HomoToCartesian(vertex3);
-
-			//screen coordinates
 			viewport(q1, q2, q3, min(viewport_height, viewport_width));
 			viewport(p1, p2, p3, min(viewport_height, viewport_width));
-
-			//draw the normals
 			DrawLine(p1, q1, { 0,0,1 });
 			DrawLine(p2, q2, { 0,0,1 });
 			DrawLine(p3, q3, { 0,0,1 });
@@ -607,7 +600,6 @@ void Renderer::DrawMesh(Scene scene, int j)
 
 	void Renderer::viewport(glm::vec3& p1, glm::vec3& p2, glm::vec3& p3, float height)
 	{
-		//add 1 to fit to screen coordinates
 		p1.x += 1;
 		p1.y += 1;
 		p1.z += 1;
@@ -617,11 +609,53 @@ void Renderer::DrawMesh(Scene scene, int j)
 		p3.x += 1;
 		p3.y += 1;
 		p3.z += 1;
+	    p1 = (float)height / 2 * p1;
+		p2 = (float)height / 2 * p2;
+		p3 = (float)height / 2 * p3;
+
+	}
+	void Renderer::undo_viewport(glm::vec3& p1, glm::vec3& p2, glm::vec3& p3, float height)
+	{
+
+		p1 = p1 / ((float)height / 2);
+		p2 = p2 / ((float)height / 2);
+		p3 = p3 / ((float)height / 2);
+
+		//sub 1 to fit to screen coordinates
+		p1.x -= 1;
+		p1.y -= 1;
+		p1.z -= 1;
+		p2.x -= 1;
+		p2.y -= 1;
+		p2.z -= 1;
+		p3.x -= 1;
+		p3.y -= 1;
+		p3.z -= 1;
+
+	}
+
+	void Renderer::undo_viewport(glm::vec3& p1, float height)
+	{
+
+		p1 = p1 / ((float)height / 2);
+
+
+		//sub 1 to fit to screen coordinates
+		p1.x -= 1;
+		p1.y -= 1;
+		p1.z -= 1;
+
+	}
+
+	void Renderer::viewport(glm::vec3& p1, float height)
+	{
+		//add 1 to fit to screen coordinates
+		p1.x += 1;
+		p1.y += 1;
+		p1.z += 1;
 
 		//scale by window size
 		p1 = (float)height / 2 * p1;
-		p2 = (float)height / 2 * p2;
-		p3 = (float)height / 2 * p3;
 
 	}
 
@@ -672,7 +706,6 @@ void Renderer::DrawMesh(Scene scene, int j)
 		}
 		return glm::vec3(vec[0] / vec[3], vec[1] / vec[3], vec[2] / vec[3]);
 	}
-
 	void Renderer::TransformationMultiplications(Scene scene, MeshModel model, glm::vec4 p)
 	{
 		p = scene.GetActiveCamera().GetProjectionTransformation() * scene.GetActiveCamera().GetViewTransformation() * model.GetTransform() * p;
@@ -736,7 +769,6 @@ void Renderer::DrawMesh(Scene scene, int j)
 
 		return dims;
 	}
-
 	float Renderer::CalculateArea(glm::vec3& q1, glm::vec3& q2, glm::vec3& q3)
 	{
 		float x1 = q1.x;
@@ -745,9 +777,7 @@ void Renderer::DrawMesh(Scene scene, int j)
 		float y2 = q2.y;
 		float x3 = q3.x;
 		float y3 = q3.y;
-
-		//triangle area formula
-		return abs(((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)) / 2.0f);
+	    return abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0);
 	}
 
 	float Renderer::Find_z(int _x, int  _y, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3)
@@ -765,6 +795,8 @@ void Renderer::DrawMesh(Scene scene, int j)
 	//z buffer getter
 	float Renderer::Get_z(int i, int j)
 	{
+		if (i < 0) return INFINITY; if (i >= viewport_width) return INFINITY;
+		if (j < 0) return INFINITY; if (j >= viewport_height) return INFINITY;
 		return z_buffer[Z_INDEX(viewport_width, i, j)];
 	}
 
@@ -774,84 +806,284 @@ void Renderer::DrawMesh(Scene scene, int j)
 		z_buffer[Z_INDEX(viewport_width, i, j)] = z;
 	}
 
+	void Renderer::DrawLight(Scene scene, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, int faceNumber)
+	{
+		MeshModel model = scene.GetModel(0);
+		Camera camera = scene.GetCamera(0);
+		glm::vec3 cameraPosition = camera.eye; // camera position
+
+		Light light = scene.GetLight(0);
+		glm::vec3 LightPosition = light.GetPosition(); // light position
+
+		viewport(LightPosition, min(viewport_height, viewport_width));
+		viewport(cameraPosition, min(viewport_height, viewport_width));
+
+		//cout << "Light1 Position = " << LightPosition.x << " " << LightPosition.y << " " << LightPosition.z << endl;
+
+		glm::vec3 facePosition = glm::vec3(0, 0, 0); //face position
+		facePosition = glm::vec3((p1 + p2 + p3) / 3.f);
 
 
 
 
-	// Drawing lines from a point to many points on a circles centered around the points - Sanity Check
-	/*int x0 = half_width, y0 = half_height, x1, y1, r = 500, a = 60;
-	for (int i = 0; i < a; i++) {
-		x1 = x0 + r * sin((2 * M_PI * i) / a);
-		y1 = y0 + r * cos((2 * M_PI * i) / a);
-		DrawLine(glm::ivec2(x0, y0), glm::ivec2(x1, y1), glm::vec3(1, 0, 2));
-	}*/
+		//normal face
+		light.N = compute_normal(p1, p2, p3);
+		//compute I
+		light.I = glm::normalize(glm::vec3(LightPosition.x - facePosition.x, LightPosition.y - facePosition.y, LightPosition.z - facePosition.z));
+		//cout << "I = " << light.I.x<<" " << light.I.y <<" " << light.I.z << endl;
+		light.V = glm::normalize(glm::vec3(cameraPosition.x - facePosition.x, cameraPosition.y - facePosition.y, cameraPosition.y - facePosition.z));
 
-	//Our Drawing - Heart CG (Computer Graphics)
-	/*glm::ivec2 pa(200, 100);
-	glm::ivec2 pb(50, 200);
-	glm::ivec2 pc(50, 400);
-	glm::ivec2 pd(200,350);
-	glm::ivec2 pe(350, 400);
-	glm::ivec2 pf(350, 200);
-	glm::ivec2 pg(150, 400);
-	glm::ivec2 ph(250, 400);
-	glm::vec3 color1(139, 0, 0);
-	DrawLine(pa, pb, color1);
-	DrawLine(pb, pc, color1);
-	DrawLine(pc, pg, color1);
-	DrawLine(pg, pd, color1);
-	DrawLine(pd, ph, color1);
-	DrawLine(ph, pe, color1);
-	DrawLine(pe, pf, color1);
-	DrawLine(pf, pa, color1);
-	glm::vec3 color2(0, 0, 0);
-	glm::ivec2 p1(400, 200);
-	glm::ivec2 p2(500, 200);
-	glm::ivec2 p3(400, 400);
-	glm::ivec2 p4(500, 400);
-	DrawLine(p1, p2, color2);
-	DrawLine(p1, p3, color2);
-	DrawLine(p3, p4, color2);
-	glm::ivec2 p5(550, 200);
-	glm::ivec2 p6(650, 200);
-	glm::ivec2 p7(550, 400);
-	glm::ivec2 p8(650, 400);
-	glm::ivec2 p9(650, 300);
-	glm::ivec2 p10(620, 300);
-	DrawLine(p5, p6, color2);
-	DrawLine(p5, p7, color2);
-	DrawLine(p7, p8, color2);
-	DrawLine(p6, p9, color2);
-	DrawLine(p10, p9, color2);*/
+		//get face info for normals
+		Face face = model.GetFace(faceNumber);
 
-	//Drawing Lines
-	/*glm::ivec2 p1(150, 150);
-	glm::ivec2 p2(200, 200);
-	glm::ivec2 p3(500, 150);
-	glm::ivec2 p4(150, 500);
-	glm::ivec2 p6(250, 450);
-	glm::ivec2 p7(450, 250);
-	glm::ivec2 p8(350, 100);
-	glm::vec3 color1(0, 120, 0);
-	glm::vec3 color2(2, 0, 0);
-	glm::vec3 color3(2, 0.8, 0.243);
-	glm::vec3 color4(0.21, 0.78, 0.12);
-	glm::vec3 color5(0.9, 0.52, 10);
-	glm::vec3 color6(0.8, 0.1, 0.578);
-	DrawLine(p1, p2, color1);
-	DrawLine(p1, p3, color2);
-	DrawLine(p1, p4, color3);
-	DrawLine(p1, p6, color4);
-	DrawLine(p1, p7, color5);
-	DrawLine(p1, p8, color6);*/
+		//get normal index
+		int vn_index1 = face.GetNormalIndex(0) - 1;
+		int vn_index2 = face.GetNormalIndex(1) - 1;
+		int vn_index3 = face.GetNormalIndex(2) - 1;
 
-	// Drawing the 2 circles
-	/*
-	glm::ivec2 p1(100, 170);
-	glm::iveca p2(160, 190);
-	glm::vec3 color1(0, 1, 200);
-	glm::vec3 color2(1, 0, 3);
-	DrawCircle(p1, 110, color1);
-	DrawCircle(p2, 80, color2);*/
+		//get normals
+		glm::vec4 q1 = { model.GetNormal(vn_index1,0),model.GetNormal(vn_index1,1) ,model.GetNormal(vn_index1,2),1.0f };
+		glm::vec4 q2 = { model.GetNormal(vn_index2,0),model.GetNormal(vn_index2,1) ,model.GetNormal(vn_index2,2),1.0f };
+		glm::vec4 q3 = { model.GetNormal(vn_index3,0),model.GetNormal(vn_index3,1) ,model.GetNormal(vn_index3,2),1.0f };
+
+		//apply transformations
+		q1 = scene.GetActiveCamera().GetProjectionTransformation() * scene.GetActiveCamera().GetViewTransformation() * model.GetTransform() * q1;
+		q2 = scene.GetActiveCamera().GetProjectionTransformation() * scene.GetActiveCamera().GetViewTransformation() * model.GetTransform() * q2;
+		q3 = scene.GetActiveCamera().GetProjectionTransformation() * scene.GetActiveCamera().GetViewTransformation() * model.GetTransform() * q3;
+
+		//go to cartesian coordinates
+		glm::vec3 normal1 = HomoToCartesian(q1);
+		glm::vec3 normal2 = HomoToCartesian(q2);
+		glm::vec3 normal3 = HomoToCartesian(q3);
+
+		//screen coordinates
+		viewport(normal1, normal2, normal3, min(viewport_height, viewport_width));
+
+		////normilize
+		/*normal1 = glm::normalize(normal1);
+		normal2 = glm::normalize(normal2);
+		normal3 = glm::normalize(normal3);*/
 
 
+		glm::vec3 cameraDirection = glm::normalize(cameraPosition - facePosition);
+		glm::vec3 reflectionDirection = glm::reflect(-light.I, light.N);
+
+
+
+
+
+
+
+		//find the extreme vertices in model, start with face vertex 1 and find with a  loop
+
+		float max_x = max(p1.x, p2.x);
+		max_x = max(max_x, p3.x);
+		float max_y = max(p1.y, p2.y);
+		max_y = max(max_y, p3.y);
+
+		float min_x = min(p1.x, p2.x);
+		min_x = min(min_x, p3.x);
+		float min_y = min(p1.y, p2.y);
+		min_y = min(min_y, p3.y);
+
+		glm::vec3 color;
+
+
+		glm::vec3 Ia = glm::vec3(0, 0, 0);
+		glm::vec3 Id = glm::vec3(0, 0, 0);
+		glm::vec3 Is = glm::vec3(0, 0, 0);
+		if (scene.ambient_light)
+		{
+			Ia = light.Compute_Ia(model.Ka);
+		}
+
+		if (scene.diffuse_light)
+		{
+			Id = light.Compute_Id(model.Kd);
+		}
+
+		if (scene.specular_light)
+		{
+			Is = light.Compute_Is(model.Ks);
+		}
+
+		color = Ia + Id + Is;
+
+		if (scene.reflection_vector)
+		{
+			//reflectionDirection = facePosition +  40.f*reflectionDirection;
+			DrawLine(facePosition + 70.f * reflectionDirection, facePosition, glm::vec3(1, 0, 1));
+			DrawLine(facePosition + 70.f * reflectionDirection, facePosition + 90.f * reflectionDirection, glm::vec3(0, 0, 1));
+		}
+
+		glm::vec3 a1 = p1;
+		glm::vec3 a2 = p2;
+		glm::vec3 a3 = p3;
+
+		Light light2;
+		glm::vec3 Light2Position;
+		glm::vec3 color2 = glm::vec3(0, 0, 0);
+		glm::vec3 Ia2 = glm::vec3(0, 0, 0);
+		glm::vec3 Id2 = glm::vec3(0, 0, 0);
+		glm::vec3 Is2 = glm::vec3(0, 0, 0);
+		if (scene.more_than_1_light)
+		{
+			light2 = scene.GetLight(1);
+			Light2Position = light2.GetPosition(); // light position
+
+			viewport(Light2Position, min(viewport_height, viewport_width));
+
+			//cout << "Light2 Position = " << Light2Position.x << " " << Light2Position.y << " " << Light2Position.z << endl;
+
+			//normal face
+			light2.N = compute_normal(p1, p2, p3);
+			//compute I
+			light2.I = glm::normalize(glm::vec3(Light2Position.x - facePosition.x, Light2Position.y - facePosition.y, Light2Position.z - facePosition.z));
+			light2.V = glm::normalize(glm::vec3(cameraPosition.x - facePosition.x, cameraPosition.y - facePosition.y, cameraPosition.y - facePosition.z));
+
+			Ia2 = glm::vec3(0, 0, 0);
+			Id2 = glm::vec3(0, 0, 0);
+			Is2 = glm::vec3(0, 0, 0);
+			if (scene.ambient_light)
+			{
+				Ia2 = light2.Compute_Ia(model.Ka);
+			}
+
+			if (scene.diffuse_light)
+			{
+				Id2 = light2.Compute_Id(model.Kd);
+			}
+
+			if (scene.specular_light)
+			{
+				Is2 = light2.Compute_Is(model.Ks);
+			}
+
+
+			color2 = Ia2 + Id2 + Is2;
+		}
+		//undo_viewport(a1, a2, a3, min(viewport_height, viewport_width));
+
+		for (int y = min_y; (y <= max_y && y < viewport_height); y++)
+		{
+			for (int x = min_x; (x <= max_x && x < viewport_width); x++)
+			{
+				if (bool_array[x][y] == true && (scene.diffuse_light || scene.ambient_light || scene.specular_light))
+				{
+					float z = Find_z(x, y, p1, p2, p3);
+					float cameraDistance = scene.GetCamera(0).eye.z;
+					//cameraDistance += 1;
+					//cameraDistance *= min(viewport_height, viewport_width);
+					//z = z - cameraDistance;
+					if (z <= Get_z(x, y))
+					{
+						if (scene.flat_shading)
+							PutPixel(x, y, color + color2);
+						else if (scene.phong)
+						{
+							glm::vec3 N;
+							//z = z - cameraPosition.z;
+							glm::vec3 position = glm::vec3{ x, y, z };
+
+							N = InterpolatedVec(a1, a2, a3, position, normal1, normal2, normal3);
+
+							light.N = glm::normalize(N);
+							//compute I
+							light.I = glm::normalize(glm::vec3(LightPosition.x - x, LightPosition.y - y, LightPosition.z - z));
+							//compute V
+							light.V = glm::normalize(glm::vec3(cameraPosition.x - x, cameraPosition.y - y, cameraPosition.z - z));
+							//compute R
+							light.R = glm::normalize(glm::reflect(-light.I, light.N));
+
+							glm::vec3 Id = light.Compute_Id(model.Kd);
+							//glm::vec3 Is = light.Compute_Is(model.Ks);
+							glm::vec3 Ia = light.Compute_Ia(model.Ka);
+							color = Ia + Id + Is;
+
+							if (scene.more_than_1_light)
+							{
+								glm::vec3 N;
+								glm::vec3 position = glm::vec3{ x, y, z };
+
+								N = InterpolatedVec(a1, a2, a3, position, normal1, normal2, normal3);
+
+								light2.N = glm::normalize(N);
+								//compute I
+								light2.I = glm::normalize(glm::vec3(Light2Position.x - x, Light2Position.y - y, Light2Position.z - z));
+								//compute V
+								light2.V = glm::normalize(glm::vec3(cameraPosition.x - x, cameraPosition.y - y, cameraPosition.z - z));
+								//compute R
+								light2.R = glm::normalize(glm::reflect(-light2.I, light2.N));
+
+								glm::vec3 Id = light2.Compute_Id(model.Kd);
+								glm::vec3 Is = light2.Compute_Is(model.Ks);
+								glm::vec3 Ia = light2.Compute_Ia(model.Ka);
+								color2 = Ia + Id + Is;
+							}
+
+							color = color + color2;
+
+							if (scene.fog)
+							{
+								// exponential method
+								float d = z;
+								float b = 0.05f;
+								//float f = exp(-d * b);
+								float _far = camera.zFar;
+								_far += 1;
+								_far *= min(viewport_height, viewport_width);
+
+								//viewport
+								float _near = camera.zNear;
+								_near += 1;
+								_near *= min(viewport_height, viewport_width);
+
+
+								//linear for equation
+								float f = (_far - abs(z)) / (_far - _near);
+
+								color = glm::mix(glm::vec3(0.83f, 0.8f, 0.9f), color, f);
+
+							}
+
+							PutPixel(x, y, color);
+						}
+					}
+				}
+
+			}
+		}
+
+		//if (scene.reflection_vector)
+		//{
+		//	//reflectionDirection = facePosition +  40.f*reflectionDirection;
+		//	DrawLine(facePosition + 70.f * reflectionDirection, facePosition, glm::vec3(1, 0, 1));
+		//	DrawLine(facePosition + 70.f * reflectionDirection, facePosition + 90.f * reflectionDirection, glm::vec3(0, 0, 1));
+		//}
+
+
+
+	}
+
+
+
+	//compute nurmal faces
+	glm::vec3 Renderer::compute_normal(glm::vec3 vertex1, glm::vec3 vertex2, glm::vec3 vertex3)
+	{
+		glm::vec3 normal = glm::normalize(glm::cross(vertex1 - vertex2, vertex1 - vertex3));
+
+		return normal;
+
+	}
+
+
+
+
+	glm::vec3 Renderer::InterpolatedVec(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec2 position, glm::vec3 normal1, glm::vec3 normal2, glm::vec3 normal3) {
+		float A1 = CalculateArea(glm::vec3(position.x, position.y, 1), p2, p3);
+		float A2 = CalculateArea(glm::vec3(position.x, position.y, 1), p1, p3);
+		float A3 = CalculateArea(glm::vec3(position.x, position.y, 1), p2, p1);
+		float A = A1 + A2 + A3;
+		return glm::vec3((A1 / A) * normal1.x + (A2 / A) * normal2.x + (A3 / A) * normal3.x, (A1 / A) * normal1.y + (A2 / A) * normal2.y + (A3 / A) * normal3.y, (A1 / A) * normal1.z + (A2 / A) * normal2.z + (A3 / A) * normal3.z);
+
+	}

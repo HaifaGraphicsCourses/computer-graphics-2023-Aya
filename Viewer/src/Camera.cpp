@@ -8,11 +8,11 @@ Camera::Camera()
     left = -1;
     top = 1.0f;
     bottom = -1.0f;
-    zNear = 0.0f;
+    zNear = -1.0f;
     zFar = 1.0f;
     fovy = 45.0f;
     aspectRatio = 1.0;
-    eye = glm::vec3(0.0f, 0.0f, 2.0f);
+    eye = glm::vec3(0.0f, 0.0f, 1.0f);
     at = glm::vec3(0.0f, 0.0f, -1.0f);
     up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4x4 proj = glm::mat4x4(1.0f);
@@ -25,12 +25,12 @@ Camera::~Camera()
 	
 }
 
-const glm::mat4x4& Camera::GetProjectionTransformation() const
+const glm::mat4x4& Camera::GetProjectionTransformation() 
 {
 	return projection_transformation;
 }
 
-const glm::mat4x4& Camera::GetViewTransformation() const
+const glm::mat4x4& Camera::GetViewTransformation() 
 {
 	return view_transformation;
 }

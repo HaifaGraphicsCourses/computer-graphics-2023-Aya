@@ -80,6 +80,8 @@ public:
 	{
 		isLocal = newValue;
 	}
+	glm::vec3 MeshModel::GetPosition();
+
 	bool worldAxes;
 	bool localAxes;
 	glm::mat4x4 localTransform;
@@ -91,6 +93,10 @@ public:
 	glm::mat4x4 localRotate;
 	glm::mat4x4 worldRotate;
 	bool isLocal;
+	glm::vec3 Ka;
+	glm::vec3 Kd;
+	glm::vec3 Ks;
+
 private:
 	std::vector<Face> faces;
 	std::vector<glm::vec3> vertices;

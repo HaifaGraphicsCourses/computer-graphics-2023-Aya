@@ -48,16 +48,26 @@ another example:
 
  Specular light with Phong shading:
  
+ ![image](https://user-images.githubusercontent.com/95486750/218328446-13b6b817-7a44-464d-89ef-249159179967.png)
+
+another example:
+
+![image](https://user-images.githubusercontent.com/95486750/218328524-df9b5ca2-4485-4b64-a1da-0b393b1bcab6.png)
+ 
 
 ## Task 6:
 
 Demonstrating different models, lights and shadings:
 
-Phong with diffuse lightining and without specular lightin:
+Phong with diffuse lightining:
 
 ![image](https://user-images.githubusercontent.com/95486750/218327324-31ef28e4-af63-492b-ae30-684820ca6b24.png)
 
 Flat shading with diffuse and ambient lightining:
 
 ![image](https://user-images.githubusercontent.com/95486750/218327481-4c7bce19-9968-4826-b6ed-5a9e05b41e0a.png)
+
+Phong with diffuse lightining and specular lightining:
+
+![image](https://user-images.githubusercontent.com/95486750/218328621-e96bb003-eaa5-4eef-96df-63cdc307fa8a.png)
 

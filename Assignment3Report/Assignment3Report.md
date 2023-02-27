@@ -154,3 +154,10 @@ Texture mapping:
 
 ![image](https://user-images.githubusercontent.com/95486750/221608563-db54f89b-0c4e-4525-ab9f-d4422b5cd71b.png)
 
+## Task 8:
+I've implemented toon shading:
+![image](https://user-images.githubusercontent.com/95486750/221650837-ebf9efd5-dcb0-4035-88ce-c1f7a9e95bd2.png)
+
+![image](https://user-images.githubusercontent.com/95486750/221649407-1808e51a-979f-4e58-b2b9-3fc41f6ead98.png)
+
+

@@ -66,3 +66,36 @@ void main()
 
 }
 ```
+## Task 4:
+Fragment shader that only outputs a a blue color:
+```
+#version 330 core
+
+struct Material
+
+{
+
+	sampler2D textureMap;
+
+};
+
+uniform Material material;
+
+in vec3 fragPos;
+
+in vec3 fragNormal;
+
+in vec2 fragTexCoords;
+
+out vec4 frag_color;
+
+void main()
+
+{
+
+	vec3 textureColor = vec3(texture(material.textureMap, fragTexCoords));
+
+	frag_color = vec4(0, 0, 1, 1);
+
+}
+```

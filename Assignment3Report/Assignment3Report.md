@@ -99,3 +99,46 @@ void main()
 
 }
 ```
+## Task 5
+I've updated all the relevant vertex attributes and uniforms, here is the relevant code:
+
+```
+	if (scene.GetModelCount() == 0)
+	    return;
+
+	MeshModel& model = scene.GetModel(0);
+	Camera& camera = scene.GetActiveCamera();
+	glm::vec4 trans;
+	trans = model.GetTransform() * glm::vec4(model.modelVertices[0].position,1);
+	
+	colorShader.use();
+	colorShader.setUniform("model", model.GetTransform());
+	colorShader.setUniform("view", camera.GetViewTransformation());
+	colorShader.setUniform("projection", camera.GetProjectionTransformation());
+	colorShader.setUniform("material.textureMap", 0);
+	colorShader.setUniform("ToonShading", scene.toon_shading);
+	colorShader.setUniform("levels", scene.levels);
+
+	if (scene.lighting)
+	{
+		Light light = scene.GetLight(0);
+		colorShader.setUniform("CameraPosition", camera.eye);
+		colorShader.setUniform("AmbientLight", light.AmbientColor);
+		colorShader.setUniform("DiffuseLight", light.DiffuseColor);
+		colorShader.setUniform("SpecularLight",light.SpecularColor);
+		colorShader.setUniform("material.ambient", model.Ka);
+		colorShader.setUniform("material.diffuse", model.Kd);
+		colorShader.setUniform("material.specular", model.Ks);
+		colorShader.setUniform("Alpha", light.alpha);
+		colorShader.setUniform("LightPosition", light.GetPosition());
+	}
+	texture1.bind(0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glBindVertexArray(model.GetVAO());
+	glDrawArrays(GL_TRIANGLES, 0, model.GetModelVertices().size());
+	glBindVertexArray(0);
+
+```
+
+	
+

@@ -142,9 +142,11 @@ I've updated all the relevant vertex attributes and uniforms, here is the releva
 ## Task 6:
 Phong shading:
 
+![image](https://user-images.githubusercontent.com/95486750/221613748-e50adfcf-5016-48db-9509-4fdf1cf204c1.png)
+
 ![image](https://user-images.githubusercontent.com/95486750/221612019-268acf0c-3074-498b-9d0c-c107714f02b2.png)
 
-![image](https://user-images.githubusercontent.com/95486750/221613748-e50adfcf-5016-48db-9509-4fdf1cf204c1.png)
+![image](https://user-images.githubusercontent.com/95486750/221618821-2d16bafe-2725-496c-b648-b27a202c18ee.png)
 
 
 ## Task 7:

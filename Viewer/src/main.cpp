@@ -480,19 +480,17 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 	if (shading == 1) { scene.flat_shading = true; scene.phong = false; }
 	if (shading == 2) { scene.flat_shading = false; scene.phong = true; }
-	ImGui::Text("Choose Texture");
 
 	static int tex_mapping = 0;
+	ImGui::Text("Choose Texture");
 	ImGui::RadioButton("Plane", &tex_mapping, 1); ImGui::SameLine();
 	ImGui::RadioButton("Cylinder", &tex_mapping, 2); ImGui::SameLine();
 	ImGui::RadioButton("Sphere", &tex_mapping, 3);
 
 	if (tex_mapping == 1) { scene.GetActiveModel().SetPlane(); ImGui::SameLine(); }
-	if (tex_mapping == 2) {}
-	if (tex_mapping == 3) {}
 
 	ImGui::Checkbox("Texture", &scene.use_texture);
 	ImGui::Checkbox("Toon Shading", &scene.toon_shading);
-	ImGui::SliderFloat("colors of shades?", &scene.levels, 0, 20);
+	ImGui::SliderFloat("colors of shades:", &scene.levels, 0, 20);
 	ImGui::End();
 }

@@ -139,6 +139,16 @@ I've updated all the relevant vertex attributes and uniforms, here is the releva
 	glBindVertexArray(0);
 
 ```
+## Task 6:
+Phong shading:
 
-	
+![image](https://user-images.githubusercontent.com/95486750/221612019-268acf0c-3074-498b-9d0c-c107714f02b2.png)
+
+![image](https://user-images.githubusercontent.com/95486750/221613748-e50adfcf-5016-48db-9509-4fdf1cf204c1.png)
+
+
+## Task 7:
+Texture mapping:
+
+![image](https://user-images.githubusercontent.com/95486750/221608563-db54f89b-0c4e-4525-ab9f-d4422b5cd71b.png)
 

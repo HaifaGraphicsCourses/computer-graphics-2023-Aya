@@ -2,11 +2,28 @@
 #include <glm/glm.hpp>
 #include <string>
 #include "Face.h"
+#include <glad/glad.h>
+#include "Utils.h"
+#include <vector>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <random>
+#include <memory>
+#include <glm/gtc/matrix_transform.hpp>
+
+struct Vertex
+{
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec2 textureCoords;
+};
 
 class MeshModel
 {
 public:
-	MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, const std::string& model_name);
+	MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::vector<glm::vec2> textureCoords, const std::string& model_name);
 	virtual ~MeshModel();
 	const Face& GetFace(int index) const;
 	int GetFacesCount() const;
@@ -81,6 +98,9 @@ public:
 		isLocal = newValue;
 	}
 	glm::vec3 MeshModel::GetPosition();
+	GLuint GetVao() const;
+	const std::vector<Vertex>& GetModelVertices();
+	void MeshModel::SetPlane();
 
 	bool worldAxes;
 	bool localAxes;
@@ -96,6 +116,10 @@ public:
 	glm::vec3 Ka;
 	glm::vec3 Kd;
 	glm::vec3 Ks;
+	glm::vec3 color;
+	GLuint vbo;
+	GLuint vao;
+	std::vector<Vertex> modelVertices;
 
 private:
 	std::vector<Face> faces;
@@ -103,5 +127,7 @@ private:
 	std::vector<glm::vec3> normals;
 	std::string model_name;
 	glm::vec3 modelColor;
+	std::vector<glm::vec2> textureCoords;
+
 	
 };

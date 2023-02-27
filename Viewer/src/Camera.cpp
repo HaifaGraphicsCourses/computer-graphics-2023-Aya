@@ -4,15 +4,15 @@ Camera::Camera()
 {
     view_transformation = glm::mat4x4(1.0f);
     projection_transformation = glm::mat4x4(1.0f);
-    right = 1;
-    left = -1;
+    aspectRatio = 16.0f / 9.0f;
+    right = aspectRatio;
+    left = -aspectRatio;
     top = 1.0f;
     bottom = -1.0f;
-    zNear = -1.0f;
-    zFar = 1.0f;
+    zNear = 1.0f;
+    zFar = -1.0f;
     fovy = 45.0f;
-    aspectRatio = 1.0;
-    eye = glm::vec3(0.0f, 0.0f, 1.0f);
+    eye = glm::vec3(0.0f, 0.0f, 0.0f);
     at = glm::vec3(0.0f, 0.0f, -1.0f);
     up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4x4 proj = glm::mat4x4(1.0f);

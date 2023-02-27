@@ -26,6 +26,10 @@ Scene::Scene() :
 	blur = false;
 	lights[0] = new Light();
 	lights[1] = new Light();
+	normal_map = false;
+	toon_shading = false;
+	levels = 3.0f;
+	use_texture = false;
 }
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& mesh_model)

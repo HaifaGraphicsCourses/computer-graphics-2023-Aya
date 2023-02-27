@@ -16,8 +16,8 @@ Light::Light()
 	Is = glm::vec3(0.f, 0.f, 0.f);
 	Translation = glm::mat4(1.0f);
 
-	Translation = glm::translate(Translation, { 1,4,2 });
-
+	Translation = glm::translate(Translation, { 0,0,0});
+	alpha = 1;
 }
 
 void Light::Translate(float x, float y, float z)

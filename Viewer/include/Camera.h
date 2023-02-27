@@ -12,7 +12,7 @@ public:
 	const glm::mat4x4& GetViewTransformation();
 	void SetOrthographicProjection(float left, float right, float bottom, float top, float zNear, float zFar);
 	void SetPerspectiveProjection( float fovy,  float aspectRatio,  float zNear,  float zFar);
-	int right, left;
+	float right, left;
 	int top, bottom;
 	float zNear, zFar;
 	float fovy;

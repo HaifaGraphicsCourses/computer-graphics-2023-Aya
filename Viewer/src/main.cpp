@@ -40,13 +40,18 @@ int main(int argc, char** argv)
 	if (!window)
 		return 1;
 
+	glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
+	glEnable(GL_DEPTH_TEST);
+
 	int frameBufferWidth, frameBufferHeight;
+	int width = 1920, height = 1080;
 	glfwMakeContextCurrent(window);
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
-
+	renderer.LoadShaders();
+	renderer.LoadTextures();
 	Camera camera;
 	scene.AddCamera(std::make_shared<Camera>(camera));
 	scene.SetActiveCameraIndex(0);
@@ -55,6 +60,8 @@ int main(int argc, char** argv)
 	glfwSetScrollCallback(window, ScrollCallback);
 	while (!glfwWindowShouldClose(window))
 	{
+		glfwGetFramebufferSize(window, &width, &height);
+		glViewport(0, 0, width, height);
 		glfwPollEvents();
 		StartFrame();
 		DrawImguiMenus(io, scene);
@@ -271,7 +278,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::SliderFloat("Local Rotation-x", &local_rotation[0], -1.0f, 1.0f);
 		ImGui::SliderFloat("Local Rotation-y", &local_rotation[1], -1.0f, 1.0f);
 		ImGui::SliderFloat("Local Rotation-z", &local_rotation[2], -1.0f, 1.0f);
-		ImGui::SliderFloat("Local Scale", &local_scale, 0.5f, 1.5f);
+		ImGui::SliderFloat("Local Scale", &local_scale, 0.01f, 1.0f);
 		ImGui::Text("World Transformations ");
 		ImGui::SliderFloat("World Translate-x", &world_translation[0], -1.0f, 1.0f);
 		ImGui::SliderFloat("World Translate-y", &world_translation[1], -1.0f, 1.0f);
@@ -279,7 +286,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::SliderFloat("World Rotation-x", &world_rotation[0], -1.0f, 1.0f);
 		ImGui::SliderFloat("World Rotation-y", &world_rotation[1], -1.0f, 1.0f);
 		ImGui::SliderFloat("World Rotation-z", &world_rotation[2], -1.0f, 1.0f);
-		ImGui::SliderFloat("World Scale", &world_scale, 0.5f, 1.5f);
+		ImGui::SliderFloat("World Scale", &world_scale, 0.01f, 1.0f);
 		if (local_prev_scale != local_scale || local_prev_translation != local_translation || local_prev_rotation != local_rotation) {
 			scene.GetModel(0).LocalTranslate(local_translation.x - local_prev_translation.x, local_translation.y - local_prev_translation.y, local_translation.z - local_prev_translation.z);
 			local_prev_scale = local_scale;
@@ -345,10 +352,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	static int projection = 1;
 	ImGui::RadioButton("Orthographic", &projection, 1); ImGui::SameLine();
 	ImGui::RadioButton("Perspective", &projection, 2);
-	ImGui::SliderInt("Right", &camera.right, -5.0f, 5.0f);
-	ImGui::SliderInt("Left", &camera.left, -5.0f, 5.0f);
+	/*ImGui::SliderInt("Right", &camera.right, -5.0f, 5.0f);
+	ImGui::SliderInt("Left", &camera.left, -5.0f, 5.0f);*/
 	ImGui::SliderInt("Down", &camera.bottom, -5, 5);
 	ImGui::SliderInt("Up", &camera.top, -5, 5);
+	ImGui::InputFloat("Left", &camera.left);
+	ImGui::InputFloat("Right", &camera.right);
 	ImGui::SliderFloat("Near", &camera.zNear, -1.00f, 100.0f);
 	ImGui::SliderFloat("Far", &camera.zFar, -100.0f, 100.0f);
 
@@ -423,7 +432,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::ColorEdit3("Specular", (float*)&scene.GetLight(0).SpecularColor);
 		ImGui::SliderFloat3("Light 1 Translation", &scene.GetLight(0).Translation[3].x, -5.0f, 5.0f);
 	}
-
+	ImGui::SliderInt("Alpha", &scene.GetLight(0).alpha, 0, 60);
 	if (LightCount == 2) {
 		static int light_num = 1;
 		ImGui::RadioButton("Light 1", &light_num, 1); ImGui::SameLine();
@@ -450,11 +459,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 
 	}
-
-
-
-
-
 	if (scene.GetModelCount())
 	{
 		ImGui::Text("Model RGB");
@@ -476,7 +480,19 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 	if (shading == 1) { scene.flat_shading = true; scene.phong = false; }
 	if (shading == 2) { scene.flat_shading = false; scene.phong = true; }
+	ImGui::Text("Choose Texture");
 
+	static int tex_mapping = 0;
+	ImGui::RadioButton("Plane", &tex_mapping, 1); ImGui::SameLine();
+	ImGui::RadioButton("Cylinder", &tex_mapping, 2); ImGui::SameLine();
+	ImGui::RadioButton("Sphere", &tex_mapping, 3);
 
+	if (tex_mapping == 1) { scene.GetActiveModel().SetPlane(); ImGui::SameLine(); }
+	if (tex_mapping == 2) {}
+	if (tex_mapping == 3) {}
+
+	ImGui::Checkbox("Texture", &scene.use_texture);
+	ImGui::Checkbox("Toon Shading", &scene.toon_shading);
+	ImGui::SliderFloat("colors of shades?", &scene.levels, 0, 20);
 	ImGui::End();
 }

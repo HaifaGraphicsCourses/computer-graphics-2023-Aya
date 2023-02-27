@@ -47,6 +47,11 @@ public:
 	bool fog;
 	bool more_than_1_light;
 	bool blur;
+	bool normal_map;
+	bool toon_shading;
+	float levels;
+	bool use_texture;
+
 
 private:
 	vector<shared_ptr<MeshModel>> mesh_models;

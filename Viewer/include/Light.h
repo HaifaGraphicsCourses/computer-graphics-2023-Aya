@@ -13,7 +13,6 @@ public:
 	glm::vec3 AmbientColor;
 	glm::vec3 DiffuseColor;
 	glm::vec3 SpecularColor;
-
 	glm::mat4 Translation;
 
 	glm::vec3 Ia;
@@ -24,6 +23,7 @@ public:
 	glm::vec3 N;
 	glm::vec3 V;
 	glm::vec3 R;
+	int alpha;
 
 	void Translate(float x, float y, float z);
 

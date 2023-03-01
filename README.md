@@ -5,7 +5,7 @@
 
 **Student Number: 314774639**
 
-**Name: Rima Hleihil**  - Only on assignment 1 part A
+**Name: Rima Hleihil**  
 
 **Student Number: 203333539**
 
